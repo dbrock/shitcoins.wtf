@@ -1,4 +1,3 @@
-
 <!doctype html><html lang=en><meta charset=utf8><style>
 html { font: 24pt/1 monospace }
 body { background: black; color: #999; margin: 0 }
@@ -19,12 +18,12 @@ tr { border-bottom: 1px solid transparent; }
 .no-shit .hot th { font-weight: bold }
 .red { color: red; font-weight: bold }
 .black { color: lime; font-weight: bold }
-</style><title>shitcoins.wtf</title><script>
+</style><title>shitcoins.wtf</title><body class=no-shit><script>
 api = "https://api.coinmarketcap.com/v1"
 coins = {}
 coins.hot = `BTC ETH MKR BCH`,
 coins.cool = `BTC BCH LTC DOGE  ETH ETC  XMR ZEC  BTS STEEM EOS`
-coins.cool += `  MKR DGD REP  RHOC ZRX`
+coins.cool += `  MKR DGD REP  RHOC ZRX XRP ADA NEM ICN GNO`
 onload = async () => {
   ticker = await (await fetch(`${api}/ticker/`)).json()
   global = await (await fetch(`${api}/global/`)).json()
