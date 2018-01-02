@@ -66,7 +66,7 @@ onload = async () => {
       ${ticker.map(coin => {
         cap = Number(coin.market_cap_usd) / 1e9
         return `<tr class="${Object.keys(coins).filter(
-          x => coins[x].indexOf(coin.symbol) != -1
+          x => x == "cool" || coins[x].indexOf(coin.symbol) != -1
         ).join(" ") || "shit"}">
           <td align=right>${coin.rank}</td>
           <th align=left>${coin.name}</th>
