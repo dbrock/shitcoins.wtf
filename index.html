@@ -1,0 +1,105 @@
+
+<!doctype html><html lang=en><meta charset=utf8><style>
+html { font: 24pt/1 monospace }
+body { background: black; color: #999; margin: 0 }
+a { color: inherit }
+header { color: black; background: white; text-align: center }
+footer { color: #ccc; text-align: right }
+table { border-collapse: collapse; width: 100% }
+td, th, header, footer { padding: .05rem .5rem }
+td, th { vertical-align: top }
+th { cursor: pointer }
+.cool { background: #666; color: white }
+.no-shit .cool { background: transparent }
+.hot .price { font-weight: bold; color: gold }
+.no-shit .shit { display: none }
+tr { border-bottom: 1px solid transparent; }
+.no-shit tr { border-color: gray; }
+.no-shit th { font-weight: normal }
+.no-shit .hot th { font-weight: bold }
+.red { color: red; font-weight: bold }
+.black { color: lime; font-weight: bold }
+</style><body class=no-shit><script>
+api = "https://api.coinmarketcap.com/v1"
+coins = {}
+coins.hot = `BTC ETH MKR BCH`,
+coins.cool = `BTC BCH LTC DOGE  ETH ETC  XMR ZEC  BTS STEEM EOS`
+coins.cool += `  MKR DGD REP  RHOC ZRX`
+onload = async () => {
+  ticker = await (await fetch(`${api}/ticker/`)).json()
+  global = await (await fetch(`${api}/global/`)).json()
+  mkr = (await (await fetch(`${api}/ticker/maker/`)).json())[0]
+  mkr.market_cap_usd = mkr.price_usd * mkr.total_supply
+  btc = ticker.find(coin => coin.symbol == "BTC")
+  eth = ticker.find(coin => coin.symbol == "ETH")
+  bch = ticker.find(coin => coin.symbol == "BCH")
+  format = x => x < 1e3
+    ? (+x).toFixed(2)
+    : Math.round(x).toLocaleString()
+  ticker.splice(ticker.findIndex(
+    coin => coin.market_cap_usd < mkr.market_cap_usd
+  ), 0, mkr)
+  mkr.rank = ticker.findIndex(coin => coin.symbol == "MKR")
+  percent = x => Math.round(x * 100) + "%"
+  document.body.innerHTML = `
+    <header>
+      flip=${percent(eth.market_cap_usd / btc.market_cap_usd)
+      } ETHBTC ${(eth.price_usd / btc.price_usd).toFixed(3)}
+      │ flap=${percent(mkr.market_cap_usd / eth.market_cap_usd)
+      } MKRETH ${(mkr.price_usd / eth.price_usd).toFixed(3)}
+      │ flop=${percent(bch.market_cap_usd / btc.market_cap_usd)
+      } BCHBTC ${(bch.price_usd / btc.price_usd).toFixed(3)}
+    </header>
+    <table>
+      <tr style="color: white">
+        <td width=10% align=right>#</td>
+        <td width=30%>Total</td>
+        <td align=right>$${format(
+          Number(global.total_market_cap_usd) / 1e9
+        )}B</td>
+        <td align=right></td>
+        <td align=right></td>
+        <td align=right></td>
+        <td align=right>$${format(
+          Number(global.total_24h_volume_usd) / 1e9
+        )}B/d</td>
+      </tr>
+      ${ticker.map(coin => {
+        cap = Number(coin.market_cap_usd) / 1e9
+        return `<tr class="${Object.keys(coins).filter(
+          x => coins[x].indexOf(coin.symbol) != -1
+        ).join(" ") || "shit"}">
+          <td align=right>${coin.rank}</td>
+          <th align=left>${coin.name}</th>
+          <td align=right>$${cap > 1
+            ? `${format(cap)}B`
+            : `${format(cap * 1e3)}MM`
+          }</td>
+          <td align=right>${coin.symbol}</th>
+          <td class=price align=right>$${
+            format(coin.price_usd)
+          }</td>
+          <td align=right class=${
+            coin.percent_change_24h > 0 ? "black" : "red"
+          }>${(Math.round(
+            coin.percent_change_24h
+          ).toString()
+            .replace(/^[^-]/, "+$&")
+            .replace(/^-/, "&minus;")
+          )}%/d</td>
+          <td align=right>$${(
+            format(+coin["24h_volume_usd"] / 1e9)
+          )}B/d</td>
+        </tr>`
+      }).join("")}
+    </table>
+    <footer>
+      Data from
+      <a href=https://coinmarketcap.com>coinmarketcap.com</a>
+    </footer>
+  `
+  for (th of document.querySelectorAll("th")) {
+    th.onclick = () => document.body.classList.toggle("no-shit")
+  }
+}
+</script>
