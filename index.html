@@ -36,7 +36,7 @@ render = () => `<table>
     <td align=right></td>
     <td align=right>Total market cap:</td>
     <td align=right>$${format(Number(global.total_market_cap_usd) / 1e9)}B</td>
-    <td colspan=3></td>
+    <td align=left colspan=3>(${Math.round(global.bitcoin_percentage_of_market_cap)}% BTC)</td>
     <td align=right>$${format(Number(global.total_24h_volume_usd) / 1e9)}B/d</td>
   </tr></thead>
   ${ticker.map(coin => `<tr>
