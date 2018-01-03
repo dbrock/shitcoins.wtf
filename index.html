@@ -17,6 +17,7 @@ onload = async () => {
   global = await (await fetch(`${api}/global/`)).json()
   btc = ticker.find(coin => coin.symbol == "BTC")
   eth = ticker.find(coin => coin.symbol == "ETH")
+  etc = ticker.find(coin => coin.symbol == "ETC")
   bch = ticker.find(coin => coin.symbol == "BCH")
   mkr = (await (await fetch(`${api}/ticker/maker/`)).json())[0]
   mkr.market_cap_usd = mkr.price_usd * mkr.total_supply
@@ -26,9 +27,10 @@ onload = async () => {
 }
 render = () => `<table>
   <thead><tr><td colspan=7>
-    │ ETHBTC ${(eth.price_usd / btc.price_usd).toFixed(3)}
-    │ MKRETH ${(mkr.price_usd / eth.price_usd).toFixed(3)}
+      ETHBTC ${(eth.price_usd / btc.price_usd).toFixed(3)}
     │ BCHBTC ${(bch.price_usd / btc.price_usd).toFixed(3)}
+    │ ETCETH ${(etc.price_usd / eth.price_usd).toFixed(3)}
+    │ MKRETH ${(mkr.price_usd / eth.price_usd).toFixed(3)}
   </td></tr></thead>
   <tr>
     <td width=10% align=right>#</td>
