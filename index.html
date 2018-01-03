@@ -7,8 +7,8 @@ a, th { color: inherit; font: inherit; }
 table { border-collapse: collapse; width: 100%; }
 td, th { padding: 0 .5rem; vertical-align: top; }
 thead, tfoot { text-align: right; }
-thead :first-child { background: white; color: black; }
-thead :last-child, tfoot { background: blue; font-weight: bold; }
+thead tr:first-child { background: white; color: black; }
+thead tr:last-child, tfoot { background: blue; font-weight: bold; }
 </style><script>
 api = "https://api.coinmarketcap.com/v1"
 percent = x => Math.round(x * 100) + "%"
