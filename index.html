@@ -6,7 +6,7 @@ body { max-width: 50rem; margin: auto; }
 a, th { color: inherit; font: inherit; }
 table { border-collapse: collapse; width: 100%; }
 td, th { padding: 0 .5rem; vertical-align: top; }
-thead td { background: white; color: black; text-align: center; }
+thead td { background: white; color: black; text-align: right; }
 tfoot td { text-align: right; }
 </style><script>
 api = "https://api.coinmarketcap.com/v1"
@@ -26,12 +26,9 @@ onload = async () => {
 }
 render = () => `<table>
   <thead><tr><td colspan=7>
-    flip=${percent(eth.market_cap_usd / btc.market_cap_usd)}
-    ETHBTC ${(eth.price_usd / btc.price_usd).toFixed(3)}
-    │ flap=${percent(mkr.market_cap_usd / eth.market_cap_usd)}
-    MKRETH ${(mkr.price_usd / eth.price_usd).toFixed(3)}
-    │ flop=${percent(bch.market_cap_usd / btc.market_cap_usd)}
-    BCHBTC ${(bch.price_usd / btc.price_usd).toFixed(3)}
+    │ ETHBTC ${(eth.price_usd / btc.price_usd).toFixed(3)}
+    │ MKRETH ${(mkr.price_usd / eth.price_usd).toFixed(3)}
+    │ BCHBTC ${(bch.price_usd / btc.price_usd).toFixed(3)}
   </td></tr></thead>
   <tr>
     <td width=10% align=right>#</td>
