@@ -6,8 +6,9 @@ body { max-width: 50rem; margin: auto; }
 a, th { color: inherit; font: inherit; }
 table { border-collapse: collapse; width: 100%; }
 td, th { padding: 0 .5rem; vertical-align: top; }
-thead td { background: white; color: black; text-align: right; }
-tfoot td { text-align: right; }
+thead, tfoot { text-align: right; }
+thead :first-child { background: white; color: black; }
+thead :last-child, tfoot { background: blue; font-weight: bold; }
 </style><script>
 api = "https://api.coinmarketcap.com/v1"
 percent = x => Math.round(x * 100) + "%"
@@ -31,14 +32,13 @@ render = () => `<table>
     │ BCHBTC ${(bch.price_usd / btc.price_usd).toFixed(3)}
     │ ETCETH ${(etc.price_usd / eth.price_usd).toFixed(3)}
     │ MKRETH ${(mkr.price_usd / eth.price_usd).toFixed(3)}
-  </td></tr></thead>
-  <tr>
-    <td width=10% align=right>#</td>
-    <td width=30%>Total</td>
+  </td></tr><tr>
+    <td align=right></td>
+    <td align=right>Total market cap:</td>
     <td align=right>$${format(Number(global.total_market_cap_usd) / 1e9)}B</td>
     <td colspan=3></td>
     <td align=right>$${format(Number(global.total_24h_volume_usd) / 1e9)}B/d</td>
-  </tr>
+  </tr></thead>
   ${ticker.map(coin => `<tr>
     <td align=right>${coin.rank}</td>
     <th align=left>${coin.name}</th>
