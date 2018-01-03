@@ -1,19 +1,13 @@
 <!doctype html><html lang=en><meta charset=utf8><style>
-html { font: 24pt/1 monospace }
-body { background: black; color: white; margin: 0 }
-a { color: inherit }
-header { color: black; background: white; text-align: center }
-footer { text-align: right }
-table { border-collapse: collapse; width: 100% }
-td, th, header, footer { padding: .05rem .5rem }
-td, th { vertical-align: top }
-tr { border-bottom: 1px solid #333; }
-</style><title>shitcoins.wtf</title><body class=no-shit><script>
+html { font: 24pt/1 monospace; background: black; color: white; }
+body { max-width: 50rem; margin: auto; }
+section { filter: invert(100%); text-align: center; }
+table { border-collapse: collapse; width: 100%; }
+a, th { color: inherit; font: inherit; }
+td, th { padding: 0 .5rem; vertical-align: top; }
+tr { border-bottom: 1px solid #666; }
+</style><title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-coins = {}
-coins.hot = `BTC ETH MKR BCH LTC XMR ZEC`,
-coins.cool = `BTC BCH LTC DOGE  ETH ETC  XMR ZEC  BTS STEEM EOS`
-coins.cool += `  MKR DGD REP  RHOC ZRX XRP ADA NEM ICN GNO`
 onload = async () => {
   ticker = await (await fetch(`${api}/ticker/`)).json()
   global = await (await fetch(`${api}/global/`)).json()
@@ -31,14 +25,14 @@ onload = async () => {
   mkr.rank = ticker.findIndex(coin => coin.symbol == "MKR")
   percent = x => Math.round(x * 100) + "%"
   document.body.innerHTML = `
-    <header>
+    <section>
       flip=${percent(eth.market_cap_usd / btc.market_cap_usd)
       } ETHBTC ${(eth.price_usd / btc.price_usd).toFixed(3)}
       │ flap=${percent(mkr.market_cap_usd / eth.market_cap_usd)
       } MKRETH ${(mkr.price_usd / eth.price_usd).toFixed(3)}
       │ flop=${percent(bch.market_cap_usd / btc.market_cap_usd)
       } BCHBTC ${(bch.price_usd / btc.price_usd).toFixed(3)}
-    </header>
+    </section>
     <table>
       <tr style="color: white">
         <td width=10% align=right>#</td>
@@ -55,9 +49,7 @@ onload = async () => {
       </tr>
       ${ticker.map(coin => {
         cap = Number(coin.market_cap_usd) / 1e9
-        return `<tr class="${Object.keys(coins).filter(
-          x => x == "cool" || coins[x].indexOf(coin.symbol) != -1
-        ).join(" ") || "shit"}">
+        return `<tr>
           <td align=right>${coin.rank}</td>
           <th align=left>${coin.name}</th>
           <td align=right>$${cap > 1
@@ -82,13 +74,10 @@ onload = async () => {
         </tr>`
       }).join("")}
     </table>
-    <footer>
+    <section>
       Data from
       <a href=https://coinmarketcap.com>coinmarketcap.com</a>
-    </footer>
+    </section>
   `
-  for (th of document.querySelectorAll("th")) {
-    //th.onclick = () => document.body.classList.toggle("no-shit")
-  }
 }
 </script>
