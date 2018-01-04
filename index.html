@@ -2,7 +2,10 @@
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
 twitter = "https://api.twitter.com/1.1"
-limit = 499, pairs = "BCHBTC ETCETH ZECBTC MKRETH ETHBTC"
+limit = 499, pairs = "BCHBTC,ETCETH,ZECBTC,MKRETH,ETHBTC"
+match = location.search.substring(1).split("&").map(x => x.split("="))
+.filter(([n, v]) => ["limit", "pairs"].includes(n))
+.forEach(([n, v]) => window[n] = v)
 </script><style>
 html { font: 22pt/1 monospace; }
 body { background: black; color: #999; }
@@ -23,7 +26,7 @@ tbody b { color: white }
 .star .symbol { background: blue; color: white; font-weight: bold }
 .star .symbol { border: .1rem solid blue }
 </style><script>
-pairs = pairs.split(" ").map(x => x.match(/.../g))
+pairs = pairs.split(",").map(x => x.match(/^...|...$/g))
 starred = x => [].concat(...pairs).includes(x.symbol)
 classes = x => [x.symbol, redgreen(x), ...(starred(x) ? ["star"] : [])]
 redgreen = x => x.percent_change_24h < 0 ? "red" : "green"
@@ -33,11 +36,12 @@ orders = ["p", "n", "&mu;", "m",, "k", "M", "B", "T"]
 unit = x => order(x) ? orders[order(x) + 4] || "??" : ""
 highlight = x => x.replace(/.+/, "<b>$&</b>")
 num = x => highlight((x / Math.pow(10, order(x) * 3)).toFixed(2))
-$ = x => order(x) < 0 ? `${unit(x)}$${num(x)}` : `$${num(x)}${unit(x)}`
+format = x => `${num(x)}${unit(x)}`
+$ = x => order(x) < 0 ? `${unit(x)}$${num(x)}` : `$${format(x)}`
 crop = (x, n) => x.length > n ? x.substr(0, n - 1) + "&hellip;" : x
 coin = x => ticker.find(coin => coin.symbol == x)
 share = x => percent(x.market_cap_usd / global.total_market_cap_usd)
-onload = async () => {
+onload = async () => { try {
 ticker = await (await fetch(`${api}/ticker/?limit=${limit}`)).json()
 global = await (await fetch(`${api}/global/`)).json()
 mkr = (await (await fetch(`${api}/ticker/maker/`)).json())[0]
@@ -53,7 +57,7 @@ document.body.innerHTML = `<table>
   <tr class=banner>
     <td align=right colspan=7>
       ${ pairs.map(([x, y]) => `${x}${y}&nbsp;${
-        (coin(x).price_usd / coin(y).price_usd).toFixed(3)
+        format(coin(x).price_usd / coin(y).price_usd)
       }`).join(" │ ") }
   <tr class=total>
     <td colspan=3 align=right> Total market cap:
@@ -79,4 +83,5 @@ document.body.innerHTML = `<table>
 <tfoot>
   <td align=right colspan=7>
     via <a href=https://coinmarketcap.com>coinmarketcap.com</a>
-`}</script>
+`} catch (e) { document.body.innerHTML = e.toString() }
+}</script>
