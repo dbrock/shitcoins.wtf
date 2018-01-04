@@ -26,7 +26,9 @@ tbody b { color: white }
 .star .symbol { background: blue; color: white; font-weight: bold }
 .star .symbol { border: .1rem solid blue }
 </style><script>
-pairs = pairs.split(",").map(x => x.match(/^...|...$/g))
+pairs = pairs.split(",").map(x => (/_/.test(x) ? x :
+  `${ x.substr(0, x.length / 2) }_${ x.substr(x.length / 2) }`
+).split("_"))
 starred = x => [].concat(...pairs).includes(x.symbol)
 classes = x => [x.symbol, redgreen(x), ...(starred(x) ? ["star"] : [])]
 redgreen = x => x.percent_change_24h < 0 ? "red" : "green"
