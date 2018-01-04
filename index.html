@@ -2,9 +2,9 @@
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
 twitter = "https://api.twitter.com/1.1"
-limit = 499, pairs = "BCHBTC,ETCETH,ZECBTC,MKRETH,ETHBTC"
+collapse = "", limit = 499, pairs = "BCHBTC,ETCETH,ZECBTC,MKRETH,ETHBTC"
 match = location.search.substring(1).split("&").map(x => x.split("="))
-.filter(([n, v]) => ["limit", "pairs"].includes(n))
+.filter(([n, v]) => ["limit", "pairs", "collapse"].includes(n))
 .forEach(([n, v]) => window[n] = v)
 </script><style>
 html { font: 22pt/1 monospace; }
@@ -17,7 +17,8 @@ th { color: white; font-weight: normal; }
 thead { font-weight: bold; }
 thead .total { background: white; color: black; }
 thead .banner, tfoot { background: blue; color: white; }
-tbody tr { border-bottom: .1rem solid #333; }
+tbody tr { border-top: .1rem solid #333; }
+.collapse { border: none; }
 tbody b { color: white }
 .red .change b { color: red }
 .green .change b { color: #8f8 }
@@ -52,6 +53,16 @@ ticker = ticker.filter(coin => coin.symbol != "MKR")
 mkr.rank = ticker.findIndex(coin => coin.market_cap_usd < mkr.market_cap_usd)
 mkr.rank == -1 || ticker.splice(mkr.rank, 0, mkr)
 ticker.forEach((coin, i) => coin.rank = i + 1)
+ticker.filter(coin => starred(coin)).forEach(coin => {
+  var min = Math.max(coin.rank - 1 - +collapse, 0)
+  var max = Math.min(coin.rank - 1 + +collapse + 1, ticker.length)
+  for (var i = min; i < max; i++) {
+    ticker[i].visible = true
+  }
+})
+for (var i = ticker.length - 1; i >= 0 && !ticker[i].visible; i--) {
+  ticker[i].invisible = true
+}
 plusminus = x => String(x).replace(/^[^-]/, "+$&").replace(/^-/, "&minus;")
 change = coin => `<b>${ plusminus(Math.round(coin.percent_change_24h)) }%</b>/d`
 document.body.innerHTML = `<table>
@@ -69,7 +80,8 @@ document.body.innerHTML = `<table>
        ${ share(ticker[1]) } ${ ticker[1].symbol })
     <td colspan=2 align=right> Total volume:
       ${ $(global.total_24h_volume_usd) }/d</td>
-<tbody> ${ticker.map(coin => `
+<tbody> ${ticker.map(coin => collapse && coin.invisible ? "" :
+collapse && !coin.visible ? "<tr class=collapse><td colspan=7> " : `
   <tr class="${ classes(coin).join(" ") }">
     <td align=right> ${ coin.rank }
     <th align=left> ${ crop(coin.name, 17) }
