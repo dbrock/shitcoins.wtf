@@ -39,8 +39,8 @@ orders = ["p", "n", "&mu;", "m",, "k", "M", "B", "T"]
 unit = x => order(x) ? orders[order(x) + 4] || "??" : ""
 highlight = x => x.replace(/.+/, "<b>$&</b>")
 num = x => highlight((x / Math.pow(10, order(x) * 3)).toFixed(2))
-format = x => `${num(x)}${unit(x)}`
-$ = x => order(x) < 0 ? `${unit(x)}$${num(x)}` : `$${format(x)}`
+$ = x => format(x).replace(/(?:\d)/, "$")
+format = x => order(x) < 0 ? `${unit(x)}${num(x)}` : `${num(x)}${unit(x)}`
 crop = (x, n) => x.length > n ? x.substr(0, n - 1) + "&hellip;" : x
 coin = x => ticker.find(coin => coin.symbol == x)
 share = x => percent(x.market_cap_usd / global.total_market_cap_usd)
