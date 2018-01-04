@@ -1,57 +1,79 @@
-<!doctype html><html lang=en><meta charset=utf8><title>
-shitcoins.wtf
-</title><style>
-html { font: 24pt/1 monospace; background: black; color: white; }
-body { max-width: 50rem; margin: auto; }
-a, th { color: inherit; font: inherit; }
+<!doctype html><html lang=en><meta charset=utf8>
+<title>shitcoins.wtf</title><script>
+api = "https://api.coinmarketcap.com/v1"
+limit = 50, pairs = "BCHBTC ETCETH ZECBTC MKRETH ETHBTC"
+foo = () => location.hash.replace(/^.*(\?.*)?$/, "$1")
+</script><style>
+html { font: 22pt/1 monospace; background: black; color: #999; }
+th { color: white; font-weight: normal; }
+body { max-width: 48rem; margin: auto; }
+a { color: inherit; }
 table { border-collapse: collapse; width: 100%; }
 td, th { padding: 0 .5rem; vertical-align: top; }
-thead, tfoot { text-align: right; }
-thead tr:first-child { background: white; color: black; }
-thead tr:last-child, tfoot { background: blue; font-weight: bold; }
+tr.total { background: white; color: black; }
+tr.banner, tfoot { background: blue; color: white; }
+tbody tr { border-bottom: .1rem solid #333; }
+thead { font-weight: bold; }
+tbody b { color: white }
+.fav .price { background: blue; color: white; border: .1rem solid blue }
+.red { color: red }
+.green { color: #8f8 }
+tfoot * { color: inherit !important }
 </style><script>
-api = "https://api.coinmarketcap.com/v1"
+pairs = pairs.split(" ").map(x => x.match(/.../g))
+favs = [].concat(...pairs)
 percent = x => Math.round(x * 100) + "%"
-format = x => x < 1e3 ? (+x).toFixed(2) : Math.round(x).toLocaleString()
+order = x => Math.floor(Math.log10(x) / 3)
+orders = ["p", "n", "&mu;", "m",, "k", "M", "B", "T"]
+si = x => order(x) ? orders[order(x) + 4] || "??" : ""
+highlight = x => x.replace(/.+/, "<b>$&</b>")
+num = x => highlight((x / Math.pow(10, order(x) * 3)).toFixed(2))
+dollars = x => order(x) < 0 ? `${si(x)}$${num(x)}` : `$${num(x)}${si(x)}`
+crop = (x, n) => x.length > n ? x.substr(0, n - 1) + "&hellip;" : x
+coin = x => ticker.find(coin => coin.symbol == x)
 onload = async () => {
-  ticker = await (await fetch(`${api}/ticker/`)).json()
+  ticker = await (await fetch(`${api}/ticker/?limit=${limit}`)).json()
   global = await (await fetch(`${api}/global/`)).json()
-  btc = ticker.find(coin => coin.symbol == "BTC")
-  eth = ticker.find(coin => coin.symbol == "ETH")
-  etc = ticker.find(coin => coin.symbol == "ETC")
-  bch = ticker.find(coin => coin.symbol == "BCH")
   mkr = (await (await fetch(`${api}/ticker/maker/`)).json())[0]
   mkr.market_cap_usd = mkr.price_usd * mkr.total_supply
+  ticker = ticker.filter(coin => coin.symbol != "MKR")
   mkr.rank = ticker.findIndex(coin => coin.market_cap_usd < mkr.market_cap_usd)
-  ticker.splice(mkr.rank, 0, mkr)
-  document.body.innerHTML = render()
-}
-render = () => `<table>
-  <thead><tr><td colspan=7>
-      ETHBTC ${(eth.price_usd / btc.price_usd).toFixed(3)}
-    │ BCHBTC ${(bch.price_usd / btc.price_usd).toFixed(3)}
-    │ ETCETH ${(etc.price_usd / eth.price_usd).toFixed(3)}
-    │ MKRETH ${(mkr.price_usd / eth.price_usd).toFixed(3)}
-  </td></tr><tr>
-    <td align=right></td>
-    <td align=right>Total market cap:</td>
-    <td align=right>$${format(Number(global.total_market_cap_usd) / 1e9)}B</td>
-    <td align=left colspan=3>(${Math.round(global.bitcoin_percentage_of_market_cap)}% BTC)</td>
-    <td align=right>$${format(Number(global.total_24h_volume_usd) / 1e9)}B/d</td>
-  </tr></thead>
-  ${ticker.map(coin => `<tr>
-    <td align=right>${coin.rank}</td>
-    <th align=left>${coin.name}</th>
-    <td align=right>$${format(Number(coin.market_cap_usd) / 1e9)}B</td>
-    <td align=right>${coin.symbol}</th>
-    <td align=right>$${format(coin.price_usd)}</td>
-    <td align=right>${Math.round(coin.percent_change_24h).toString()
-      .replace(/^[^-]/, "+$&").replace(/^-/, "&minus;")
-    }%/d</td>
-    <td align=right>$${format(+coin["24h_volume_usd"] / 1e9)}B/d</td>
-  </tr>`).join("")}
-  <tfoot><td colspan=7>
-    Data from <a href=https://coinmarketcap.com>coinmarketcap.com</a>
-  </td></tfoot>
-</table>`
-</script>
+  mkr.rank == -1 || ticker.splice(mkr.rank, 0, mkr)
+  ticker.forEach((coin, i) => coin.rank = i + 1)
+  percent_change_html = coin => `<b class=${
+    coin.percent_change_24h < 0 ? "red" : "green"
+  }>${Math.round(coin.percent_change_24h).toString()
+    .replace(/^[^-]/, "+$&").replace(/^-/, "&minus;")
+  }%</b>/d`
+  document.body.innerHTML = `
+<table><thead><tr class=banner>
+  <td align=right colspan=7>${pairs.map(([x, y]) => `${x}${y}&nbsp;${
+    (coin(x).price_usd / coin(y).price_usd).toFixed(3)
+  }`).join(" │ ")}</td>
+</tr><tr class=total>
+  <td align=right colspan=3>Total market cap: ${dollars(
+    global.total_market_cap_usd
+  )}</td>
+  <td align=left colspan=2>(${percent(
+    global.bitcoin_percentage_of_market_cap / 100
+  )} BTC)</td>
+  <td align=right colspan=2>Total volume: ${dollars(
+    global.total_24h_volume_usd
+  )}/d</td>
+</tr></thead><tbody>${ticker.map(coin => `
+<tr class="${coin.symbol} ${favs.includes(coin.symbol) ? "fav" : ""}">
+  <td align=right>${coin.rank}</td>
+  <th align=left>${crop(coin.name, 17)}</th>
+  <td align=right title="Total available supply: ${
+    Number(coin.available_supply).toLocaleString()
+  } ${coin.symbol}">${dollars(coin.market_cap_usd)}</td>
+  <td align=left>${crop(coin.symbol, 6)}</th>
+  <td class=price align=right>${dollars(coin.price_usd)}${
+    order(coin.price_usd) > 0 ? "" : "&nbsp;"
+  }</td>
+  <td align=right>${percent_change_html(coin)}</td>
+  <td align=right>${dollars(coin["24h_volume_usd"])}/d</td>
+</tr>`).join("")}</tbody><tfoot><td align=right colspan=7>
+  via <a href=https://coinmarketcap.com>coinmarketcap.com</a>
+</td></tfoot></table>`
+}</script>
