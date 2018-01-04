@@ -60,7 +60,7 @@ document.body.innerHTML = `<table>
     <td align=right colspan=7>
       ${ pairs.map(([x, y]) => `${x}${y}&nbsp;${
         format(coin(x).price_usd / coin(y).price_usd)
-      }`).join(" │ ") }
+      }`).join(" │&zwj;&nbsp;") }
   <tr class=total>
     <td colspan=3 align=right> Total market cap:
       ${ $(global.total_market_cap_usd) }
