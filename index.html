@@ -1,13 +1,17 @@
-<!doctype html><html lang=en><meta charset=utf8>
+<!doctype html><html lang=en><meta charset=utf-8>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
 twitter = "https://api.twitter.com/1.1"
-collapse = "", limit = 499, pairs = "BCHBTC,ETCETH,ZECBTC,MKRETH,ETHBTC"
+params = { pairs: "ETHBTC,LTCBTC,MKRETH,MKRDAI", limit: 99, collapse: 3 }
+standard = Object.keys(params).map(x => `${x}=${params[x]}`).join("&")
+if (!location.search) location.search = standard
+Object.keys(params).forEach(x => window[x] = params[x])
 match = location.search.substring(1).split("&").map(x => x.split("="))
-.filter(([n, v]) => ["limit", "pairs", "collapse"].includes(n))
+.filter(([n, v]) => Object.keys(params).includes(n))
 .forEach(([n, v]) => window[n] = v)
 </script><style>
-html { font: 22pt/1 monospace; }
+@import url("https://fonts.googleapis.com/css?family=Fira+Mono");
+html { font: 20pt/1 "Fira Mono", monospace; }
 body { background: black; color: #999; }
 body { max-width: 48rem; margin: auto; }
 a { color: inherit; }
@@ -17,8 +21,7 @@ th { color: white; font-weight: normal; }
 thead { font-weight: bold; }
 thead .total { background: white; color: black; }
 thead .banner, tfoot { background: blue; color: white; }
-tbody tr { border-top: .1rem solid #333; }
-.collapse { border: none; }
+tr.collapse > * { border: none; }
 tbody b { color: white }
 .red .change b { color: red }
 .green .change b { color: #8f8 }
@@ -45,17 +48,18 @@ crop = (x, n) => x.length > n ? x.substr(0, n - 1) + "&hellip;" : x
 coin = x => ticker.find(coin => coin.symbol == x)
 share = x => percent(x.market_cap_usd / global.total_market_cap_usd)
 onload = async () => { try {
-ticker = await (await fetch(`${api}/ticker/?limit=${limit}`)).json()
+ticker = await (await fetch(`${api}/ticker/?limit=9999`)).json()
 global = await (await fetch(`${api}/global/`)).json()
-mkr = (await (await fetch(`${api}/ticker/maker/`)).json())[0]
+mkr = ticker.find(coin => coin.symbol == "MKR")
 mkr.market_cap_usd = mkr.price_usd * mkr.total_supply
-ticker = ticker.filter(coin => coin.symbol != "MKR")
+ticker.splice(mkr.rank - 1, 1)
 mkr.rank = ticker.findIndex(coin => coin.market_cap_usd < mkr.market_cap_usd)
-mkr.rank == -1 || ticker.splice(mkr.rank, 0, mkr)
+ticker.splice(mkr.rank - 1, 0, mkr)
 ticker.forEach((coin, i) => coin.rank = i + 1)
 ticker.filter(coin => starred(coin)).forEach(coin => {
-  var min = Math.max(coin.rank - 1 - +collapse, 0)
-  var max = Math.min(coin.rank - 1 + +collapse + 1, ticker.length)
+  var delta = coin.rank > limit ? 0 : +collapse
+  var min = Math.max(coin.rank - 1 - delta, 0)
+  var max = Math.min(coin.rank - 1 + delta + 1, ticker.length)
   for (var i = min; i < max; i++) {
     ticker[i].visible = true
   }
@@ -76,8 +80,8 @@ document.body.innerHTML = `<table>
     <td colspan=3 align=right> Total market cap:
       ${ $(global.total_market_cap_usd) }
     <td colspan=2 align=left>
-      (${ share(ticker[0]) } ${ ticker[0].symbol },
-       ${ share(ticker[1]) } ${ ticker[1].symbol })
+      (${ share(ticker[0]) }&nbsp;${ ticker[0].symbol },&nbsp;${
+        share(ticker[1]) }&nbsp;${ ticker[1].symbol })
     <td colspan=2 align=right> Total volume:
       ${ $(global.total_24h_volume_usd) }/d</td>
 <tbody> ${ticker.map(coin => collapse && coin.invisible ? "" :
