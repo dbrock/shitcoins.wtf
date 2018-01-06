@@ -29,9 +29,8 @@ tbody b { color: white }
 .star .symbol { background: blue; color: white; font-weight: bold }
 .star .symbol { border: .1rem solid blue }
 </style><script>
-pairs = pairs.split(",").map(x => (/_/.test(x) ? x :
-  `${ x.substr(0, x.length / 2) }_${ x.substr(x.length / 2) }`
-).split("_"))
+_ = x => `${x.substr(0, x.length / 2)}_${x.substr(x.length / 2)}`
+pairs = pairs.split(",").map(x => (/_/.test(x) ? x : _(x)).split("_"))
 starred = x => [].concat(...pairs).includes(x.symbol)
 classes = x => [x.symbol, redgreen(x), ...(starred(x) ? ["star"] : [])]
 redgreen = x => x.percent_change_24h < 0 ? "red" : "green"
@@ -47,55 +46,55 @@ crop = (x, n) => x.length > n ? x.substr(0, n - 1) + "&hellip;" : x
 coin = x => ticker.find(coin => coin.symbol == x)
 share = x => percent(x.market_cap_usd / global.total_market_cap_usd)
 onload = async () => { try {
-ticker = await (await fetch(`${api}/ticker/?limit=9999`)).json()
-global = await (await fetch(`${api}/global/`)).json()
-mkr = ticker.find(coin => coin.symbol == "MKR")
-mkr.market_cap_usd = mkr.price_usd * mkr.total_supply
-ticker.splice(mkr.rank - 1, 1)
-mkr.rank = ticker.findIndex(coin => coin.market_cap_usd < mkr.market_cap_usd)
-ticker.splice(mkr.rank - 1, 0, mkr)
-ticker.forEach((coin, i) => coin.rank = i + 1)
-ticker.filter(coin => starred(coin)).forEach(coin => {
-  var delta = coin.rank > limit ? 0 : +collapse
-  var min = Math.max(coin.rank - 1 - delta, 0)
-  var max = Math.min(coin.rank - 1 + delta + 1, ticker.length)
-  for (var i = min; i < max; i++) {
-    ticker[i].visible = true
+  ticker = await (await fetch(`${api}/ticker/?limit=9999`)).json()
+  global = await (await fetch(`${api}/global/`)).json()
+  mkr = ticker.find(coin => coin.symbol == "MKR")
+  mkr.market_cap_usd = mkr.price_usd * mkr.total_supply
+  ticker.splice(mkr.rank - 1, 1)
+  mkr.rank = ticker.findIndex(coin => coin.market_cap_usd < mkr.market_cap_usd)
+  ticker.splice(mkr.rank - 1, 0, mkr)
+  ticker.forEach((coin, i) => coin.rank = i + 1)
+  ticker.filter(coin => starred(coin)).forEach(coin => {
+    var delta = coin.rank > limit ? 0 : +collapse
+    var min = Math.max(coin.rank - 1 - delta, 0)
+    var max = Math.min(coin.rank - 1 + delta + 1, ticker.length)
+    for (var i = min; i < max; i++) {
+      ticker[i].visible = true
+    }
+  })
+  for (var i = ticker.length - 1; i >= 0 && !ticker[i].visible; i--) {
+    ticker[i].invisible = true
   }
-})
-for (var i = ticker.length - 1; i >= 0 && !ticker[i].visible; i--) {
-  ticker[i].invisible = true
-}
-plusminus = x => String(x).replace(/^[^-]/, "+$&").replace(/^-/, "&minus;")
-change = coin => `<b>${ plusminus(Math.round(coin.percent_change_24h)) }%</b>/d`
-document.body.innerHTML = `<table>
+  plusminus = x => String(x).replace(/^[^-]/, "+$&").replace(/^-/, "&minus;")
+  change = coin => `<b>${plusminus(Math.round(coin.percent_change_24h))}%</b>/d`
+  document.body.innerHTML = `<table>
 <thead>
   <tr class=banner>
     <td align=right colspan=7>
-      ${ pairs.map(([x, y]) => `${x}${y}&nbsp;${
-        format(coin(x).price_usd / coin(y).price_usd)
-      }`).join(" │&zwj;&nbsp;") }
+      ${pairs.map(([x, y]) => `${x}${y}&nbsp;${format(
+        coin(x).price_usd / coin(y).price_usd
+      )}`).join(" │&zwj;&nbsp;")}
   <tr class=total>
     <td colspan=3 align=right> Total market cap:
-      ${ $(global.total_market_cap_usd) }
+      ${$(global.total_market_cap_usd)}
     <td colspan=2 align=left>
-      (${ share(ticker[0]) }&nbsp;${ ticker[0].symbol },&nbsp;${
-        share(ticker[1]) }&nbsp;${ ticker[1].symbol })
+      (${share(ticker[0])}&nbsp;${ticker[0].symbol},&nbsp;${
+        share(ticker[1])}&nbsp;${ticker[1].symbol})
     <td colspan=2 align=right> Total volume:
-      ${ $(global.total_24h_volume_usd) }/d</td>
+      ${$(global.total_24h_volume_usd)}/d</td>
 <tbody> ${ticker.map(coin => collapse && coin.invisible ? "" :
 collapse && !coin.visible ? "<tr class=collapse><td colspan=7> " : `
-  <tr class="${ classes(coin).join(" ") }">
-    <td align=right> ${ coin.rank }
-    <th align=left> ${ crop(coin.name, 17) }
+  <tr class="${classes(coin).join(" ")}">
+    <td align=right> ${coin.rank}
+    <th align=left> ${crop(coin.name, 17)}
     <td align=right title="Total available supply: ${
       Number(coin.available_supply).toLocaleString()
-    } ${ coin.symbol }"> ${ $(coin.market_cap_usd) }
-    <td align=right class=symbol> ${ crop(coin.symbol, 6) }
-    <td align=right class=price> ${ $(coin.price_usd) }${
-      order(coin.price_usd) > 0 ? "" : "&nbsp;" }
-    <td align=right class=change> ${ change(coin) }
-    <td align=right> ${ $(coin["24h_volume_usd"]) }/d
+    } ${coin.symbol}"> ${$(coin.market_cap_usd)}
+    <td align=right class=symbol> ${crop(coin.symbol, 6)}
+    <td align=right class=price> ${$(coin.price_usd)}${
+      order(coin.price_usd) > 0 ? "" : "&nbsp;"}
+    <td align=right class=change> ${change(coin)}
+    <td align=right> ${$(coin["24h_volume_usd"])}/d
   `).join("")}
 <tfoot>
   <td align=right colspan=7>
