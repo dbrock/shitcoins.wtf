@@ -1,7 +1,7 @@
 <!doctype html><html lang=en><meta charset=utf-8>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-params = { pairs: "ETHBTC,LTCBTC,XMRBTC,MKRETH,MKRDAI", limit: 30, collapse: 8 }
+params = { pairs: "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRDAI", limit: 30, collapse: 8 }
 standard = Object.keys(params).map(x => `${x}=${params[x]}`).join("&")
 if (!location.search) location.search = standard
 Object.keys(params).forEach(x => window[x] = params[x])
