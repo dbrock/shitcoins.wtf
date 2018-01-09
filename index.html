@@ -8,6 +8,12 @@ Object.keys(params).forEach(x => window[x] = params[x])
 match = location.search.substring(1).split("&").map(x => x.split("="))
 .filter(([n, v]) => Object.keys(params).includes(n))
 .forEach(([n, v]) => window[n] = v)
+addrs = {}
+addrs.MKR = "0x9f8F72aA9304c8B593d555F12eF6589cC3A579a2"
+addrs.DAI = "0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359"
+ES = "https://api.etherscan.io/api"
+callurl = (x, y) => `${ES}?module=proxy&action=eth_call&to=${x}&data=${y}`
+call = async (x, y) => (await (await fetch(callurl(x, y))).json()).result
 </script><style>
 @import url("https://fonts.googleapis.com/css?family=Fira+Mono");
 html { font: 20pt/1 "Fira Mono", monospace; }
@@ -50,11 +56,14 @@ share = x => percent(x.market_cap_usd / global.total_market_cap_usd)
 onload = async () => { try {
   ticker = await (await fetch(`${api}/ticker/?limit=9999`)).json()
   global = await (await fetch(`${api}/global/`)).json()
-  mkr = ticker.find(coin => coin.symbol == "MKR")
-  mkr.market_cap_usd = mkr.price_usd * mkr.total_supply
-  ticker.splice(mkr.rank - 1, 1)
-  mkr.rank = ticker.findIndex(coin => coin.market_cap_usd < mkr.market_cap_usd)
-  ticker.splice(mkr.rank - 1, 0, mkr)
+  for (symbol of Object.keys(addrs)) {
+    let coin = ticker.find(x => x.symbol == symbol)
+    coin.total_supply = (await call(addrs[symbol], "0x18160ddd")) / 1e18
+    coin.market_cap_usd = coin.price_usd * coin.total_supply
+    ticker.splice(ticker.findIndex(x => x.symbol == coin.symbol), 1)
+    coin.rank = ticker.findIndex(x => x.market_cap_usd < coin.market_cap_usd)
+    ticker.splice(coin.rank - 1, 0, coin)
+  }
   ticker.forEach((coin, i) => coin.rank = i + 1)
   ticker.filter(coin => starred(coin)).forEach(coin => {
     var delta = coin.rank > limit ? 0 : +collapse
