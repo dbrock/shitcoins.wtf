@@ -51,15 +51,15 @@ cent = x => x.replace(/m<b>\$([\d.]+)/g, (m, n) => `<b>&cent;${$$(n / 10)}`)
 $$ = x => x.toFixed(2)
 format = x => cent(order(x) < 0 ? `${unit(x)}${num(x)}` : `${num(x)}${unit(x)}`)
 crop = (x, n) => x.length > n ? x.substr(0, n - 1) + "&hellip;" : x
-coin = x => ticker.find(coin => coin.symbol == x)
+coin = x => ticker.find(y => y.symbol == x)
 share = x => percent(x.market_cap_usd / global.total_market_cap_usd)
 onload = async () => { try {
   ticker = await (await fetch(`${api}/ticker/?limit=9999`)).json()
   global = await (await fetch(`${api}/global/`)).json()
   for (symbol of Object.keys(addrs)) {
     let coin = ticker.find(x => x.symbol == symbol)
-    coin.total_supply = (await call(addrs[symbol], "0x18160ddd")) / 1e18
-    coin.market_cap_usd = coin.price_usd * coin.total_supply
+    coin.available_supply = (await call(addrs[symbol], "0x18160ddd")) / 1e18
+    coin.market_cap_usd = coin.price_usd * coin.available_supply
     ticker.splice(ticker.findIndex(x => x.symbol == coin.symbol), 1)
     coin.rank = ticker.findIndex(x => x.market_cap_usd < coin.market_cap_usd)
     ticker.splice(coin.rank - 1, 0, coin)
