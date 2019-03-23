@@ -10,7 +10,7 @@ match = location.search.substring(1).split("&").map(x => x.split("="))
 .forEach(([n, v]) => window[n] = v)
 </script><style>
 @import url("https://fonts.googleapis.com/css?family=Fira+Mono");
-html { font: 18pt/1.2 "Fira Mono", monospace; }
+html { font: 20pt/1.2 "Fira Mono", monospace; }
 body { background: black; color: #999; margin: auto; }
 a { color: inherit; }
 table { border-collapse: collapse; width: 100%; }
@@ -50,7 +50,7 @@ crop = (x, n) => x.length > n ? x.substr(0, n - 1) + "&hellip;" : x
 coin = x => ticker.find(y => y.symbol == x)
 share = x => percent(x.market_cap_usd / global.total_market_cap_usd)
 onload = async () => { try {
-  ticker = await (await fetch(`${api}/ticker/?limit=9999`)).json()
+  ticker = await (await fetch(`${api}/ticker/?limit=${limit}`)).json()
   global = await (await fetch(`${api}/global/`)).json()
   ticker.forEach((coin, i) => coin.rank = i + 1)
   ticker.filter(coin => starred(coin)).forEach(coin => {
@@ -70,9 +70,6 @@ onload = async () => { try {
   document.body.innerHTML = `<table>
 <thead>
   <tr class=banner>
-    <td colspan=7></td>
-  </tr>
-  <tr class=banner>
     <td align=right colspan=7>
       ${pairs.map(([x, y]) => `${x}${y}&nbsp;${formatshort(
         coin(x).price_usd / coin(y).price_usd
@@ -89,7 +86,7 @@ onload = async () => { try {
 collapse && !coin.visible ? "<tr class=collapse><td colspan=7> " : `
   <tr class="${classes(coin).join(" ")}">
     <td align=right> ${coin.rank}
-    <th align=left> ${crop(coin.name, 17)}
+    <th align=left>${crop(coin.name, 14)}</th>
     <td align=right title="Total available supply: ${
       Number(coin.available_supply).toLocaleString()
     } ${coin.symbol}"> ${$(coin.market_cap_usd)}
