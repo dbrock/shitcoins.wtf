@@ -1,19 +1,13 @@
 <!doctype html><html lang=en><meta charset=utf-8>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-params = { pairs: "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRDAI", limit: 100, collapse: 100 }
+params = { pairs: "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRDAI", limit: 99, collapse: 99 }
 standard = Object.keys(params).map(x => `${x}=${params[x]}`).join("&")
 if (!location.search) location.search = standard
 Object.keys(params).forEach(x => window[x] = params[x])
 match = location.search.substring(1).split("&").map(x => x.split("="))
 .filter(([n, v]) => Object.keys(params).includes(n))
 .forEach(([n, v]) => window[n] = v)
-addrs = {}
-addrs.MKR = "0x9f8F72aA9304c8B593d555F12eF6589cC3A579a2"
-addrs.DAI = "0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359"
-ES = "https://api.etherscan.io/api"
-callurl = (x, y) => `${ES}?module=proxy&action=eth_call&to=${x}&data=${y}`
-call = async (x, y) => (await (await fetch(callurl(x, y))).json()).result
 </script><style>
 @import url("https://fonts.googleapis.com/css?family=Fira+Mono");
 html { font: 18pt/1.2 "Fira Mono", monospace; }
@@ -51,21 +45,13 @@ $ = x => cent(format(x).replace(/(?=\d)/, "$"))
 cent = x => x.replace(/m<b>\$([\d.]+)/g, (m, n) => `<b>&cent;${$$(n / 10)}`)
 $$ = x => x.toFixed(2)
 format = x => cent(order(x) < 0 ? `${unit(x)}${num(x)}` : `${num(x)}${unit(x)}`)
-formatshort = x => format(x).replace(/(\d{3,})\.\d\d/, "$1")
+formatshort = x => format(x).replace(/\D/g, "").substr(0, 2)
 crop = (x, n) => x.length > n ? x.substr(0, n - 1) + "&hellip;" : x
 coin = x => ticker.find(y => y.symbol == x)
 share = x => percent(x.market_cap_usd / global.total_market_cap_usd)
 onload = async () => { try {
   ticker = await (await fetch(`${api}/ticker/?limit=9999`)).json()
   global = await (await fetch(`${api}/global/`)).json()
-  for (symbol of Object.keys(addrs)) {
-    let coin = ticker.find(x => x.symbol == symbol)
-    coin.available_supply = (await call(addrs[symbol], "0x18160ddd")) / 1e18
-    coin.market_cap_usd = coin.price_usd * coin.available_supply
-    ticker.splice(ticker.findIndex(x => x.symbol == coin.symbol), 1)
-    coin.rank = ticker.findIndex(x => x.market_cap_usd < coin.market_cap_usd)
-    ticker.splice(coin.rank - 1, 0, coin)
-  }
   ticker.forEach((coin, i) => coin.rank = i + 1)
   ticker.filter(coin => starred(coin)).forEach(coin => {
     var delta = coin.rank > limit ? 0 : +collapse
@@ -97,7 +83,7 @@ onload = async () => { try {
     <td colspan=2 align=left>
       (${share(ticker[0])}&nbsp;${ticker[0].symbol},&nbsp;${
         share(ticker[1])}&nbsp;${ticker[1].symbol})
-    <td colspan=2 align=right> Total volume:
+    <td colspan=2 align=right> Volume:
       ${$(global.total_24h_volume_usd)}/d</td>
 <tbody> ${ticker.map(coin => collapse && coin.invisible ? "" :
 collapse && !coin.visible ? "<tr class=collapse><td colspan=7> " : `
@@ -120,10 +106,9 @@ collapse && !coin.visible ? "<tr class=collapse><td colspan=7> " : `
   document.body.style.padding = "2rem"
   document.body.innerHTML = `
     <b style="color: red">Error:</b> ${e.toString()}
-
     <p> Note: For some reason the CMC API is caught by ad blockers.
-
-    <p><a href=https://www.google.com/search?q=coinmarketcap+api+ad+blocker>https://www.google.com/search?q=coinmarketcap+api+ad+blocker</a>
-
+    <p><a href=https://www.google.com/search?q=coinmarketcap+api+ad+blocker>
+      https://www.google.com/search?q=coinmarketcap+api+ad+blocker
+    </a>
   `
 } }</script>
