@@ -3,7 +3,8 @@
 api = "https://api.coinmarketcap.com/v1"
 params = { pairs: "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRDAI", limit: 99, collapse: 99 }
 standard = Object.keys(params).map(x => `${x}=${params[x]}`).join("&")
-if (!location.search) location.search = standard
+oldstandard = "?pairs=LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRDAI&limit=30&collapse=8"
+if (!location.search || location.search == oldstandard) location.search = standard
 Object.keys(params).forEach(x => window[x] = params[x])
 match = location.search.substring(1).split("&").map(x => x.split("="))
 .filter(([n, v]) => Object.keys(params).includes(n))
@@ -50,13 +51,14 @@ crop = (x, n) => x.length > n ? x.substr(0, n - 1) + "&hellip;" : x
 coin = x => ticker.find(y => y.symbol == x)
 share = x => percent(x.market_cap_usd / global.total_market_cap_usd)
 onload = async () => { try {
-  ticker = await (await fetch(`${api}/ticker/?limit=${limit}`)).json()
+  ticker = await (await fetch(`${api}/ticker/?limit=9999`)).json()
   global = await (await fetch(`${api}/global/`)).json()
   ticker.forEach((coin, i) => coin.rank = i + 1)
   ticker.filter(coin => starred(coin)).forEach(coin => {
     var delta = coin.rank > limit ? 0 : +collapse
     var min = Math.max(coin.rank - 1 - delta, 0)
     var max = Math.min(coin.rank - 1 + delta + 1, ticker.length)
+    console.log(coin, delta, min, max, ticker.length)
     for (var i = min; i < max; i++) {
       ticker[i].visible = true
     }
