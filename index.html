@@ -86,7 +86,7 @@ onload = async () => { try {
 collapse && !coin.visible ? "<tr class=collapse><td colspan=7> " : `
   <tr class="${classes(coin).join(" ")}">
     <td align=right> ${coin.rank}
-    <th align=left>${crop(coin.name, 14)}</th>
+    <th align=left>${coin.name}</th>
     <td align=right title="Total available supply: ${
       Number(coin.available_supply).toLocaleString()
     } ${coin.symbol}"> ${$(coin.market_cap_usd)}
