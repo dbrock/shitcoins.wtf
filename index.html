@@ -1,7 +1,7 @@
 <!doctype html><html lang=en><meta charset=utf-8>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-params = { pairs: "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRDAI", limit: 30, collapse: 8 }
+params = { pairs: "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRDAI", limit: 100, collapse: 100 }
 standard = Object.keys(params).map(x => `${x}=${params[x]}`).join("&")
 if (!location.search) location.search = standard
 Object.keys(params).forEach(x => window[x] = params[x])
@@ -16,9 +16,8 @@ callurl = (x, y) => `${ES}?module=proxy&action=eth_call&to=${x}&data=${y}`
 call = async (x, y) => (await (await fetch(callurl(x, y))).json()).result
 </script><style>
 @import url("https://fonts.googleapis.com/css?family=Fira+Mono");
-html { font: 20pt/1 "Fira Mono", monospace; }
-body { background: black; color: #999; }
-body { max-width: 48rem; margin: auto; }
+html { font: 18pt/1.2 "Fira Mono", monospace; }
+body { background: black; color: #999; margin: auto; }
 a { color: inherit; }
 table { border-collapse: collapse; width: 100%; }
 td, th { padding: 0 .5rem; vertical-align: top; }
@@ -28,6 +27,7 @@ thead .total { background: white; color: black; }
 thead .banner, tfoot { background: blue; color: white; }
 tr.collapse > * { border: none; }
 tbody b { color: white }
+.gray .change b { color: gray }
 .red .change b { color: red }
 .green .change b { color: #8f8 }
 .star .price { background: blue; color: white; }
@@ -39,7 +39,8 @@ _ = x => `${x.substr(0, x.length / 2)}_${x.substr(x.length / 2)}`
 pairs = pairs.split(",").map(x => (/_/.test(x) ? x : _(x)).split("_"))
 starred = x => [].concat(...pairs).includes(x.symbol)
 classes = x => [x.symbol, redgreen(x), ...(starred(x) ? ["star"] : [])]
-redgreen = x => x.percent_change_24h < 0 ? "red" : "green"
+redgreen = x => redgreen100(x.percent_change_24h)
+redgreen100 = x => Math.abs(Math.round(x)) < 1 ? "gray" : x < 0 ? "red" : "green"
 percent = x => Math.round(x * 100) + "%"
 order = x => Math.floor(Math.log10(x) / 3)
 orders = ["p", "n", "&mu;", "m",, "k", "M", "B", "T"]
@@ -50,6 +51,7 @@ $ = x => cent(format(x).replace(/(?=\d)/, "$"))
 cent = x => x.replace(/m<b>\$([\d.]+)/g, (m, n) => `<b>&cent;${$$(n / 10)}`)
 $$ = x => x.toFixed(2)
 format = x => cent(order(x) < 0 ? `${unit(x)}${num(x)}` : `${num(x)}${unit(x)}`)
+formatshort = x => format(x).replace(/(\d{3,})\.\d\d/, "$1")
 crop = (x, n) => x.length > n ? x.substr(0, n - 1) + "&hellip;" : x
 coin = x => ticker.find(y => y.symbol == x)
 share = x => percent(x.market_cap_usd / global.total_market_cap_usd)
@@ -77,16 +79,20 @@ onload = async () => { try {
     ticker[i].invisible = true
   }
   plusminus = x => String(x).replace(/^[^-]/, "+$&").replace(/^-/, "&minus;")
-  change = coin => `<b>${plusminus(Math.round(coin.percent_change_24h))}%</b>/d`
+  percentchange = x => `<b>${plusminus(x)}%</b>/d`
+  change = coin => percentchange(Math.round(coin.percent_change_24h))
   document.body.innerHTML = `<table>
 <thead>
   <tr class=banner>
+    <td colspan=7></td>
+  </tr>
+  <tr class=banner>
     <td align=right colspan=7>
-      ${pairs.map(([x, y]) => `${x}${y}&nbsp;${format(
+      ${pairs.map(([x, y]) => `${x}${y}&nbsp;${formatshort(
         coin(x).price_usd / coin(y).price_usd
       )}`).join(" │&zwj;&nbsp;")}
   <tr class=total>
-    <td colspan=3 align=right> Total market cap:
+    <td colspan=3 align=right> Total:
       ${$(global.total_market_cap_usd)}
     <td colspan=2 align=left>
       (${share(ticker[0])}&nbsp;${ticker[0].symbol},&nbsp;${
@@ -110,5 +116,14 @@ collapse && !coin.visible ? "<tr class=collapse><td colspan=7> " : `
 <tfoot>
   <td align=right colspan=7>
     via <a href=https://coinmarketcap.com>coinmarketcap.com</a>
-`} catch (e) { document.body.innerHTML = e.toString() }
-}</script>
+`} catch (e) {
+  document.body.style.padding = "2rem"
+  document.body.innerHTML = `
+    <b style="color: red">Error:</b> ${e.toString()}
+
+    <p> Note: For some reason the CMC API is caught by ad blockers.
+
+    <p><a href=https://www.google.com/search?q=coinmarketcap+api+ad+blocker>https://www.google.com/search?q=coinmarketcap+api+ad+blocker</a>
+
+  `
+} }</script>
