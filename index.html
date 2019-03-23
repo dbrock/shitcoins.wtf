@@ -2,6 +2,7 @@
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
 params = { pairs: "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRDAI", limit: 99, collapse: 99 }
+params.default = 1
 standard = Object.keys(params).map(x => `${x}=${params[x]}`).join("&")
 oldstandard = "?pairs=LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRDAI&limit=30&collapse=8"
 if (!location.search || location.search == oldstandard) location.search = standard
