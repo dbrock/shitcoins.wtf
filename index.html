@@ -1,7 +1,7 @@
 <!doctype html><html lang=en><meta charset=utf-8>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,DAI_USDT"
+pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,BCHBTC,ETCETH,ZECBTC,REPETH,DOGE_BTC"
 signs = { BTC: "₿", LTC: "Ł", ETH: "Ξ", DAI: "⬙" }
 if (location.search) location.href = location.href.replace(/\?.*/, "")
 </script><style>
@@ -26,7 +26,7 @@ tbody b { color: white; }
 _ = x => `${x.substr(0, x.length / 2)}_${x.substr(x.length / 2)}`
 pairs = pairs.split(",").map(x => (/_/.test(x) ? x : _(x)).split("_"))
 starred = x => [].concat(...pairs).includes(x.symbol)
-extras = x => pairs.filter(y => y[0] == x && y[1] != "DAI").map(x => coin(x[1]))
+extras = x => pairs.filter(y => y[0] == x).map(x => coin(x[1]))
 classes = x => [x.symbol, redgreen(x), ...(starred(x) ? ["star"] : [])]
 redgreen = x => redgreen100(x.percent_change_24h)
 redgreen100 = x => Math.abs(Math.round(x)) < 1 ? "gray" : x < 0 ? "red" : "green"
@@ -50,23 +50,26 @@ percentchange = x => `<b>${plusminus(x)}%</b>`
 change = x => percentchange(Math.round(x.percent_change_24h))
 $$$ = (x, y) => format(x / y.price_usd).replace(/(?=\d)/, signs[y.symbol] || "")
 $$$$ = (x, y) => y.symbol == "USDT" ? $(x / y.price_usd) : $$$(x, y)
+int = x => String(x).replace(/(\d)(\d\d\d)$/, "$1,$2")
 onload = async () => { try {
 ticker = await (await fetch(`${api}/ticker/`)).json()
 global = await (await fetch(`${api}/global/`)).json()
 document.body.innerHTML = `<table>
 <thead>
-  <tr class=banner>
+  <tr class=banner style="display: none">
     <td align=right colspan=7>
       ${pairs.map(([x, y]) => `${signs[x] || x}${signs[y] || y}${formatshort(
         coin(x).price_usd / coin(y).price_usd
       )}`).join(" ")}
-  <tr class=total>
-    <td colspan=3 align=right> MCAP
+  <tr class=total style="display: none">
+    <td align=right>${int(global.active_assets + global.active_currencies)}
+    <td>Shitcoins
+    <td colspan=1 align=right>
       ${$(global.total_market_cap_usd)}
     <td colspan=2 align=left>
       (${share(ticker[0])}&nbsp;${ticker[0].symbol},&nbsp;${
         share(ticker[1])}&nbsp;${ticker[1].symbol})
-    <td colspan=2 align=right> VOL&nbsp;${$(global.total_24h_volume_usd)}</td>
+    <td colspan=2 align=right> ${$(global.total_24h_volume_usd)}</td>
 <tbody> ${ticker.map(x => `
   <tr class="${classes(x).join(" ")}">
     <td align=right> ${x.rank}
