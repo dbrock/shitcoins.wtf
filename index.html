@@ -1,7 +1,7 @@
 <!doctype html><html lang=en><meta charset=utf-8>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,BCHBTC,ETCETH,ZECBTC,REPETH,DOGE_BTC"
+pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,BCHBTC,ETCETH,ETCBTC,ZECBTC,REPETH,DOGE_BTC,GNTETH,BTSBTC,XRPBTC,EOSBTC,BSVBCH,DASH_BTC"
 signs = { BTC: "₿", LTC: "Ł", ETH: "Ξ", DAI: "⬙" }
 if (location.search) location.href = location.href.replace(/\?.*/, "")
 </script><style>
@@ -20,8 +20,8 @@ tbody b { color: white; }
 .gray .change b { color: gray }
 .red .change b { color: red }
 .green .change b { color: #8f8 }
-.star .price { background: blue; color: white; }
-.star .symbol { background: blue; color: white; }
+.estar .price { background: blue; color: white; }
+.estar .symbol { background: blue; color: white; }
 </style><script>
 _ = x => `${x.substr(0, x.length / 2)}_${x.substr(x.length / 2)}`
 pairs = pairs.split(",").map(x => (/_/.test(x) ? x : _(x)).split("_"))
@@ -84,9 +84,9 @@ document.body.innerHTML = `<table>
     <td align=right> ${$(x["24h_volume_usd"])}
   ${extras(x.symbol).map(y => `
   <tr class=extra>
-    <td><td style="letter-spacing: -1px">vs ${y.symbol} (${percent(x.market_cap_usd / y.market_cap_usd)})
-    <td align=right> ${$$$$(x.market_cap_usd, y)}
-    <td align=right> ${x.symbol}${y.symbol}
+    <td><td style="letter-spacing: -1px">vs ${y.name}
+    <td align=right> ${percent(x.market_cap_usd / y.market_cap_usd)}
+    <td align=right>
     <td align=right class=price> ${$$$$(x.price_usd, y)}${
       order(x.price_usd / y.price_usd) > 0 ? "" : "&nbsp;"}
   `).join("")}`).join("")}
