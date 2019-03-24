@@ -21,9 +21,7 @@ tbody b { color: white }
 .red .change b { color: red }
 .green .change b { color: #8f8 }
 .star .price { background: blue; color: white; }
-.star .price { border: .1rem solid blue }
 .star .symbol { background: blue; color: white; font-weight: bold }
-.star .symbol { border: .1rem solid blue }
 </style><script>
 _ = x => `${x.substr(0, x.length / 2)}_${x.substr(x.length / 2)}`
 pairs = pairs.split(",").map(x => (/_/.test(x) ? x : _(x)).split("_"))
