@@ -1,7 +1,7 @@
 <!doctype html><html lang=en><meta charset=utf-8>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-pairs = "LTCBTC,XMRBTC,ETHBTC,ETCETH,BTSBTC,MKRETH,REPETH,BCHBTC,ZECBTC,USDT_DAI"
+pairs = "LTCBTC,XMRBTC,ETHBTC,BTSBTC,MKRETH,MKRBTC,REPETH,ZECBTC,USDT_DAI"
 signs = { BTC: "₿", ETH: "Ξ", DAI: "⬙", LTC: "Ł" }
 if (location.search) location.href = location.href.replace(/\?.*/, "")
 </script><style>
@@ -83,7 +83,7 @@ document.body.innerHTML = `<table>
     <td align=right> ${$(x["24h_volume_usd"])}/d
   ${extras(x.symbol).map(y => `
   <tr class=extra>
-    <td><td>vs ${y.symbol} [${percent(x.market_cap_usd / y.market_cap_usd)}]
+    <td><td>vs ${y.name}
     <td align=right> ${$$$(x.market_cap_usd, y)}
     <td align=right> ${x.symbol}${y.symbol}
     <td align=right class=price> ${$$$(x.price_usd, y)}${
