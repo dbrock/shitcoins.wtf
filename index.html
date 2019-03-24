@@ -1,7 +1,8 @@
 <!doctype html><html lang=en><meta charset=utf-8>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-pairs = "LTCBTC,XMRBTC,ETHBTC,MKRDAI,MKRETH,MKRBTC"
+pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,ETCETH,ZECBTC,BCHBTC,USDT_DAI"
+signs = { BTC: "₿", ETH: "Ξ", DAI: "⬙", LTC: "Ł", XMR: "ɱ" }
 if (location.search) location.href = location.href.replace(/\?.*/, "")
 </script><style>
 @import url("https://fonts.googleapis.com/css?family=Fira+Mono");
@@ -31,7 +32,7 @@ extras = x => pairs.filter(([a, b]) => a == x).map(([a, b]) => coin(b))
 classes = x => [x.symbol, redgreen(x), ...(starred(x) ? ["star"] : [])]
 redgreen = x => redgreen100(x.percent_change_24h)
 redgreen100 = x => Math.abs(Math.round(x)) < 1 ? "gray" : x < 0 ? "red" : "green"
-percent = x => Math.round(x * 100) + "%"
+percent = x => String(Math.round(x * 100)).replace(/(\d)(\d\d\d)$/, "$1,$2") + "%"
 order = x => Math.floor(Math.log10(x) / 3)
 orders = ["p", "n", "&mu;", "m",, "k", "M", "B", "T"]
 unit = x => order(x) ? orders[order(x) + 4] || "??" : ""
@@ -48,6 +49,7 @@ share = x => percent(x.market_cap_usd / global.total_market_cap_usd)
 plusminus = x => String(x).replace(/^[^-]/, "+$&").replace(/^-/, "&minus;")
 percentchange = x => `<b>${plusminus(x)}%</b>/d`
 change = x => percentchange(Math.round(x.percent_change_24h))
+$$$ = (x, y) => format(x / y.price_usd).replace(/(?=\d)/, signs[y.symbol] || "")
 onload = async () => { try {
 ticker = await (await fetch(`${api}/ticker/`)).json()
 global = await (await fetch(`${api}/global/`)).json()
@@ -55,7 +57,7 @@ document.body.innerHTML = `<table>
 <thead>
   <tr class=banner>
     <td align=right colspan=7>
-      ${pairs.map(([x, y]) => `${x}${y}/${formatshort(
+      ${pairs.map(([x, y]) => `${signs[x] || x}${signs[y] || y}${formatshort(
         coin(x).price_usd / coin(y).price_usd
       )}`).join(" ")}
   <tr class=total>
@@ -69,7 +71,7 @@ document.body.innerHTML = `<table>
 <tbody> ${ticker.map(x => `
   <tr class="${classes(x).join(" ")}">
     <td align=right> ${x.rank}
-    <th align=left>${x.name}</th>
+    <th align=left>${x.name + (signs[x.symbol] ? ` (${signs[x.symbol]})` : "")}</th>
     <td align=right title="Total available supply: ${
       Number(x.available_supply).toLocaleString()
     } ${x.symbol}"> ${$(x.market_cap_usd)}
@@ -80,10 +82,10 @@ document.body.innerHTML = `<table>
     <td align=right> ${$(x["24h_volume_usd"])}/d
   ${extras(x.symbol).map(y => `
   <tr class=extra>
-    <td><td>vs ${y.name}
-    <td align=right> ${format(x.market_cap_usd / y.price_usd)}
+    <td><td>vs ${y.name} (${percent(x.market_cap_usd / y.market_cap_usd)})
+    <td align=right> ${$$$(x.market_cap_usd, y)}
     <td align=right> ${x.symbol}${y.symbol}
-    <td align=right class=price> ${format(x.price_usd / y.price_usd)}${
+    <td align=right class=price> ${$$$(x.price_usd, y)}${
       order(x.price_usd / y.price_usd) > 0 ? "" : "&nbsp;"}
   `).join("")}`).join("")}
 <tfoot>
