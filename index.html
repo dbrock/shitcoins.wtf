@@ -1,7 +1,7 @@
 <!doctype html><html lang=en><meta charset=utf-8>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRDAI", limit = 99, collapse = 99
+pairs = "LTCBTC,XMRBTC,ETHBTC,MKRDAI,MKRETH,MKRBTC", limit = 99, collapse = 99
 oldstandard = "?pairs=LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRDAI&limit=30&collapse=8"
 if (location.search == oldstandard) location.search = ""
 Object.keys(params).forEach(x => window[x] = params[x])
@@ -72,9 +72,9 @@ onload = async () => { try {
 <thead>
   <tr class=banner>
     <td align=right colspan=7>
-      ${pairs.map(([x, y]) => `${x}${y}&nbsp;${formatshort(
+      ${pairs.map(([x, y]) => `${x}${y}=${formatshort(
         coin(x).price_usd / coin(y).price_usd
-      )}`).join(" │&zwj;&nbsp;")}
+      )}`).join(" ")}
   <tr class=total>
     <td colspan=3 align=right> Total:
       ${$(global.total_market_cap_usd)}
