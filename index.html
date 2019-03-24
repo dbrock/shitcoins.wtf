@@ -98,7 +98,7 @@ collapse && !x.visible ? "<tr class=collapse><td colspan=7> " : `
     <td align=right> ${$(x["24h_volume_usd"])}/d
   ${extras(x.symbol).map(y => `
   <tr class=extra>
-    <td><td>&nbsp; in ${y.symbol}
+    <td><td>vs ${y.name}
     <td align=right> ${format(x.market_cap_usd / y.price_usd)}
     <td align=right> ${x.symbol}${y.symbol}
     <td align=right class=price> ${format(x.price_usd / y.price_usd)}${
