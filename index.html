@@ -66,7 +66,7 @@ document.body.innerHTML = `<table>
     <td colspan=2 align=left>
       (${share(ticker[0])}&nbsp;${ticker[0].symbol},&nbsp;${
         share(ticker[1])}&nbsp;${ticker[1].symbol})
-    <td colspan=2 align=right> VOL&nbsp;${$(global.total_24h_volume_usd)}</td>
+    <td colspan=2 align=right> Volume:&nbsp;${$(global.total_24h_volume_usd)}</td>
 <tbody> ${ticker.map(x => `
   <tr class="${classes(x).join(" ")}">
     <td align=right> ${x.rank}
