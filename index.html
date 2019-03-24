@@ -1,11 +1,9 @@
 <!doctype html><html lang=en><meta charset=utf-8>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-params = { pairs: "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRDAI", limit: 99, collapse: 99 }
-params.default = 1
-standard = Object.keys(params).map(x => `${x}=${params[x]}`).join("&")
+pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRDAI", limit = 99, collapse = 99
 oldstandard = "?pairs=LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRDAI&limit=30&collapse=8"
-if (!location.search || location.search == oldstandard) location.search = standard
+if (location.search == oldstandard) location.search = ""
 Object.keys(params).forEach(x => window[x] = params[x])
 match = location.search.substring(1).split("&").map(x => x.split("="))
 .filter(([n, v]) => Object.keys(params).includes(n))
