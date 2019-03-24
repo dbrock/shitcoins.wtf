@@ -1,27 +1,28 @@
 <!doctype html><html lang=en><meta charset=utf-8>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-pairs = "LTCBTC,XMRBTC,ETHBTC,REPETH,MKRETH,MKRBTC,DAI_USDT,ZECBTC,BCHBTC"
+pairs = "LTCBTC,XMRBTC,ETHBTC,REPETH,MKRETH,MKRBTC,DAI_USDT,BCHBTC"
 signs = { BTC: "₿", LTC: "Ł", ETH: "Ξ", DAI: "⬙" }
 if (location.search) location.href = location.href.replace(/\?.*/, "")
 </script><style>
-@import url("https://fonts.googleapis.com/css?family=Fira+Mono");
+@import url("https://fonts.googleapis.com/css?family=Fira+Mono:400,700");
 html { font: 20pt/1.3 "Fira Mono", monospace; }
 body { background: black; color: #999; margin: auto; }
 a { color: inherit; }
 table { border-collapse: collapse; width: 100%; }
 td, th { padding: 0 .5rem; vertical-align: top; }
 th { color: white; font-weight: normal; }
-thead { font-weight: bold; }
+thead { font-weight: normal; }
 thead .total { background: white; color: black; }
 thead .banner, tfoot { background: blue; color: white; }
-tbody b { color: white }
+b { font-weight: inherit; }
+tbody b { color: white; }
 .extra b { color: inherit; }
 .gray .change b { color: gray }
 .red .change b { color: red }
 .green .change b { color: #8f8 }
 .star .price { background: blue; color: white; }
-.star .symbol { background: blue; color: white; font-weight: bold }
+.star .symbol { background: blue; color: white; }
 </style><script>
 _ = x => `${x.substr(0, x.length / 2)}_${x.substr(x.length / 2)}`
 pairs = pairs.split(",").map(x => (/_/.test(x) ? x : _(x)).split("_"))
@@ -61,16 +62,16 @@ document.body.innerHTML = `<table>
         coin(x).price_usd / coin(y).price_usd
       )}`).join(" ")}
   <tr class=total>
-    <td colspan=3 align=right> Market cap:
+    <td colspan=3 align=right> MCAP
       ${$(global.total_market_cap_usd)}
     <td colspan=2 align=left>
       (${share(ticker[0])}&nbsp;${ticker[0].symbol},&nbsp;${
         share(ticker[1])}&nbsp;${ticker[1].symbol})
-    <td colspan=2 align=right> Volume:&nbsp;${$(global.total_24h_volume_usd)}</td>
+    <td colspan=2 align=right> VOL&nbsp;${$(global.total_24h_volume_usd)}</td>
 <tbody> ${ticker.map(x => `
   <tr class="${classes(x).join(" ")}">
     <td align=right> ${x.rank}
-    <th align=left>${x.name} ${signs[x.symbol] ? `(${signs[x.symbol]})` : ""}</th>
+    <th align=left style="letter-spacing: -1px">${x.name} ${signs[x.symbol] ? `(${signs[x.symbol]})` : ""}</th>
     <td align=right title="Total available supply: ${
       Number(x.available_supply).toLocaleString()
     } ${x.symbol}"> ${$(x.market_cap_usd)}
@@ -81,7 +82,7 @@ document.body.innerHTML = `<table>
     <td align=right> ${$(x["24h_volume_usd"])}
   ${extras(x.symbol).map(y => `
   <tr class=extra>
-    <td><td>vs ${y.symbol} (${percent(x.market_cap_usd / y.market_cap_usd)})
+    <td><td style="letter-spacing: -1px">vs ${y.symbol} (${percent(x.market_cap_usd / y.market_cap_usd)})
     <td align=right> ${$$$$(x.market_cap_usd, y)}
     <td align=right> ${x.symbol}${y.symbol}
     <td align=right class=price> ${$$$$(x.price_usd, y)}${
