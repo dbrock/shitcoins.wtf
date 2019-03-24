@@ -49,6 +49,7 @@ plusminus = x => String(x).replace(/^[^-]/, "+$&").replace(/^-/, "&minus;")
 percentchange = x => `<b>${plusminus(x)}%</b>`
 change = x => percentchange(Math.round(x.percent_change_24h))
 $$$ = (x, y) => format(x / y.price_usd).replace(/(?=\d)/, signs[y.symbol] || "")
+$$$$ = (x, y) => y.symbol == "USDT" ? $(x / y.price_usd) : $$$(x, y)
 onload = async () => { try {
 ticker = await (await fetch(`${api}/ticker/`)).json()
 global = await (await fetch(`${api}/global/`)).json()
@@ -81,9 +82,9 @@ document.body.innerHTML = `<table>
   ${extras(x.symbol).map(y => `
   <tr class=extra>
     <td><td>vs ${y.symbol} (${percent(x.market_cap_usd / y.market_cap_usd)})
-    <td align=right> ${$$$(x.market_cap_usd, y)}
+    <td align=right> ${$$$$(x.market_cap_usd, y)}
     <td align=right> ${x.symbol}${y.symbol}
-    <td align=right class=price> ${$$$(x.price_usd, y)}${
+    <td align=right class=price> ${$$$$(x.price_usd, y)}${
       order(x.price_usd / y.price_usd) > 0 ? "" : "&nbsp;"}
   `).join("")}`).join("")}
 <tfoot>
