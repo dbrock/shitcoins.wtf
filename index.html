@@ -48,7 +48,7 @@ crop = (x, n) => x.length > n ? x.substr(0, n - 1) + "&hellip;" : x
 coin = x => ticker.find(y => y.symbol == x)
 share = x => percent(x.market_cap_usd / global.total_market_cap_usd)
 plusminus = x => String(x).replace(/^[^-]/, "+$&").replace(/^-/, "&minus;")
-percentchange = x => `<b>${plusminus(x)}%</b>/d`
+percentchange = x => `<b>${plusminus(x)}%</b>`
 change = x => percentchange(Math.round(x.percent_change_24h))
 $$$ = (x, y) => format(x / y.price_usd).replace(/(?=\d)/, signs[y.symbol] || "")
 onload = async () => { try {
@@ -62,13 +62,13 @@ document.body.innerHTML = `<table>
         coin(x).price_usd / coin(y).price_usd
       )}`).join(" ")}
   <tr class=total>
-    <td colspan=3 align=right> Total:
+    <td colspan=3 align=right> Market cap:
       ${$(global.total_market_cap_usd)}
     <td colspan=2 align=left>
       (${share(ticker[0])}&nbsp;${ticker[0].symbol},&nbsp;${
         share(ticker[1])}&nbsp;${ticker[1].symbol})
     <td colspan=2 align=right> Volume:
-      ${$(global.total_24h_volume_usd)}/d</td>
+      ${$(global.total_24h_volume_usd)}</td>
 <tbody> ${ticker.map(x => `
   <tr class="${classes(x).join(" ")}">
     <td align=right> ${x.rank}
@@ -80,7 +80,7 @@ document.body.innerHTML = `<table>
     <td align=right class=price> ${$(x.price_usd)}${
       order(x.price_usd) > 0 ? "" : "&nbsp;"}
     <td align=right class=change> ${change(x)}
-    <td align=right> ${$(x["24h_volume_usd"])}/d
+    <td align=right> ${$(x["24h_volume_usd"])}
   ${extras(x.symbol).map(y => `
   <tr class=extra>
     <td><td>vs ${y.symbol} (${percent(x.market_cap_usd / y.market_cap_usd)})
