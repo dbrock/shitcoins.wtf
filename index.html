@@ -1,8 +1,8 @@
 <!doctype html><html lang=en><meta charset=utf-8>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,ETCETH,ZECBTC,BCHBTC,USDT_DAI"
-signs = { BTC: "₿", ETH: "Ξ", DAI: "⬙", LTC: "Ł", XMR: "ɱ" }
+pairs = "LTCBTC,XMRBTC,ETHBTC,ETCETH,BTSBTC,MKRETH,REPETH,BCHBTC,ZECBTC,USDT_DAI"
+signs = { BTC: "₿", ETH: "Ξ", DAI: "⬙", LTC: "Ł" }
 if (location.search) location.href = location.href.replace(/\?.*/, "")
 </script><style>
 @import url("https://fonts.googleapis.com/css?family=Fira+Mono");
@@ -32,7 +32,8 @@ extras = x => pairs.filter(([a, b]) => a == x).map(([a, b]) => coin(b))
 classes = x => [x.symbol, redgreen(x), ...(starred(x) ? ["star"] : [])]
 redgreen = x => redgreen100(x.percent_change_24h)
 redgreen100 = x => Math.abs(Math.round(x)) < 1 ? "gray" : x < 0 ? "red" : "green"
-percent = x => String(Math.round(x * 100)).replace(/(\d)(\d\d\d)$/, "$1,$2") + "%"
+percentk = x => x > 1000 ? `${Math.round(x / 1000)}k` : x
+percent = x => percentk(Math.round(x * 100)) + "%"
 order = x => Math.floor(Math.log10(x) / 3)
 orders = ["p", "n", "&mu;", "m",, "k", "M", "B", "T"]
 unit = x => order(x) ? orders[order(x) + 4] || "??" : ""
@@ -64,14 +65,14 @@ document.body.innerHTML = `<table>
     <td colspan=3 align=right> Total:
       ${$(global.total_market_cap_usd)}
     <td colspan=2 align=left>
-      (${share(ticker[0])}&nbsp;${ticker[0].symbol},&nbsp;${
-        share(ticker[1])}&nbsp;${ticker[1].symbol})
+      [${share(ticker[0])}&nbsp;${ticker[0].symbol},&nbsp;${
+        share(ticker[1])}&nbsp;${ticker[1].symbol}]
     <td colspan=2 align=right> Volume:
       ${$(global.total_24h_volume_usd)}/d</td>
 <tbody> ${ticker.map(x => `
   <tr class="${classes(x).join(" ")}">
     <td align=right> ${x.rank}
-    <th align=left>${x.name + (signs[x.symbol] ? ` (${signs[x.symbol]})` : "")}</th>
+    <th align=left>${x.name} ${signs[x.symbol] ? `(${signs[x.symbol]})` : ""}</th>
     <td align=right title="Total available supply: ${
       Number(x.available_supply).toLocaleString()
     } ${x.symbol}"> ${$(x.market_cap_usd)}
@@ -82,7 +83,7 @@ document.body.innerHTML = `<table>
     <td align=right> ${$(x["24h_volume_usd"])}/d
   ${extras(x.symbol).map(y => `
   <tr class=extra>
-    <td><td>vs ${y.name} (${percent(x.market_cap_usd / y.market_cap_usd)})
+    <td><td>vs ${y.symbol} [${percent(x.market_cap_usd / y.market_cap_usd)}]
     <td align=right> ${$$$(x.market_cap_usd, y)}
     <td align=right> ${x.symbol}${y.symbol}
     <td align=right class=price> ${$$$(x.price_usd, y)}${
