@@ -90,7 +90,7 @@ document.body.innerHTML = `<table>
     <td align=right class=price> ${$$$$(x.price_usd, y)}${
       order(x.price_usd / y.price_usd) > 0 ? "" : "&nbsp;"}
   `).join("")}`).join("")}
-<tfoot>
+<tfoot style="display: none">
   <td align=right colspan=7>
     via <a href=https://coinmarketcap.com>coinmarketcap.com</a>
 `} catch (e) {
