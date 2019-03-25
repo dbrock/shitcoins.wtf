@@ -2,7 +2,7 @@
 <meta name=viewport content=width=device-width>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,BCHBTC,ETCETH,ETCBTC,ZECBTC,REPETH,DOGE_BTC,GNTETH,BTSBTC,EOSBTC,BSVBCH,DASH_BTC"
+pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,BCHBTC,ETCETH,ETCBTC,ZECBTC,REPETH,DOGE_BTC,GNTETH,BTSBTC,EOSBTC,BSVBCH,DASH_BTC,DAI_USDT,XEMBTC"
 signs = { BTC: "₿", LTC: "Ł", ETH: "Ξ", DAI: "⬙" }
 if (location.search) location.href = location.href.replace(/\?.*/, "")
 </script><style>
@@ -62,17 +62,17 @@ document.body.innerHTML = document.body.offsetWidth < 1024 ? `
 ${ticker.map(x => `
   <tr class="${classes(x).join(" ")}">
     <td align=right> ${x.rank}
-    <th align=left class=symbol> ${crop(x.symbol, 6)}
-    <td align=right> ${$(x.market_cap_usd)}
+    <th align=right class=symbol> ${crop(x.symbol, 6)}
     <td align=right class=price> ${$(x.price_usd)}${
       order(x.price_usd) > 0 ? "" : "&nbsp;"}
+    <td align=right> ${$(x.market_cap_usd)}
     <td align=right class=change> ${change(x)}
   ${extras(x.symbol).map(y => `
   <tr class=extra>
-    <td>
-    <td colspan=2 align=right> ${crop(y.symbol, 6)} ${percent(x.market_cap_usd / y.market_cap_usd)}
-    <td align=right class=price> ${$$$$(x.price_usd, y)}${
+    <td><td colspan=2>
+    <span style="float: right"> ${$$$$(x.price_usd, y)}${
       order(x.price_usd / y.price_usd) > 0 ? "" : "&nbsp;"}
+    <td align=right class=price> ${percent(x.market_cap_usd / y.market_cap_usd)} ${crop(y.symbol, 6)}
   `).join("")}`).join("")}
 </table>
 ` : `<table>
