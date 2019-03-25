@@ -1,7 +1,8 @@
 <!doctype html><html lang=en><meta charset=utf-8>
+<meta name=viewport content=width=device-width>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,BCHBTC,ETCETH,ETCBTC,ZECBTC,REPETH,DOGE_BTC,GNTETH,BTSBTC,XRPBTC,EOSBTC,BSVBCH,DASH_BTC"
+pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,BCHBTC,ETCETH,ETCBTC,ZECBTC,REPETH,DOGE_BTC,GNTETH,BTSBTC,EOSBTC,BSVBCH,DASH_BTC"
 signs = { BTC: "₿", LTC: "Ł", ETH: "Ξ", DAI: "⬙" }
 if (location.search) location.href = location.href.replace(/\?.*/, "")
 </script><style>
@@ -33,11 +34,12 @@ redgreen100 = x => Math.abs(Math.round(x)) < 1 ? "gray" : x < 0 ? "red" : "green
 percentk = x => x > 1000 ? `${Math.round(x / 1000)}k` : x
 percent = x => percentk(Math.round(x * 100)) + "%"
 order = x => Math.floor(Math.log10(x) / 3)
-orders = ["p", "n", "&mu;", "m",, "k", "M", "B", "T"]
+orders = ["p", "n", "&mu;", "m", "dummy", "k", "M", "B", "T"]
 unit = x => order(x) ? orders[order(x) + 4] || "??" : ""
 highlight = x => x.replace(/.+/, "<b>$&</b>")
 num = x => highlight((x / Math.pow(10, order(x) * 3)).toFixed(2))
-$ = x => cent(format(x).replace(/(?=\d)/, "$"))
+$2 = x => format(x).replace(/(?=\d)/, "$")
+$ = x => format(x).replace(/(?=\d)/, "$")
 cent = x => x.replace(/m<b>\$([\d.]+)/g, (m, n) => `<b>&cent;${$$(n / 10)}`)
 $$ = x => x.toFixed(2)
 format = x => cent(order(x) < 0 ? `${unit(x)}${num(x)}` : `${num(x)}${unit(x)}`)
@@ -54,7 +56,26 @@ int = x => String(x).replace(/(\d)(\d\d\d)$/, "$1,$2")
 onload = async () => { try {
 ticker = await (await fetch(`${api}/ticker/`)).json()
 global = await (await fetch(`${api}/global/`)).json()
-document.body.innerHTML = `<table>
+
+document.body.innerHTML = document.body.offsetWidth < 1024 ? `
+<table>
+${ticker.map(x => `
+  <tr class="${classes(x).join(" ")}">
+    <td align=right> ${x.rank}
+    <td align=left class=symbol> ${crop(x.symbol, 6)}
+    <td align=right> ${$(x.market_cap_usd)}
+    <td align=right class=price> ${$(x.price_usd)}${
+      order(x.price_usd) > 0 ? "" : "&nbsp;"}
+    <td align=right class=change> ${change(x)}
+  ${extras(x.symbol).map(y => `
+  <tr class=extra>
+    <td>
+    <td colspan=2 align=right> ${crop(y.symbol, 6)} ${percent(x.market_cap_usd / y.market_cap_usd)}
+    <td align=right class=price> ${$$$$(x.price_usd, y)}${
+      order(x.price_usd / y.price_usd) > 0 ? "" : "&nbsp;"}
+  `).join("")}`).join("")}
+</table>
+` : `<table>
 <thead>
   <tr class=banner style="display: none">
     <td align=right colspan=7>
