@@ -73,11 +73,11 @@ document.body.innerHTML = small ? ((x => `${x.replace(`<table>`, `<table class=h
     <td align=right> #
     <td align=left> SYMBOL
     <td align=right> MCAP
-    <td align=center> PRICE
+    <td align=right> PRICE
     <td align=right> HR
-    <td align=right> HR24
+    <td align=right> DAY
     <td align=right> VOL24
-    <td align=center> WEEK
+    <td align=right> WEEK
 <tbody>
 ${ticker.map(x => `
   <tr class="main ${classes(x).join(" ")}">
