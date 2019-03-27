@@ -89,7 +89,7 @@ ${ticker.map(x => `
     <td align=right> ${change(x.percent_change_7d)}
   ${extras(x.symbol).map((y, i) => `
   <tr class=extra>
-    <td><td align=left style="line-height: 1.1rem; "><span style="font-size: .8rem; font-family: sans-serif">vs&nbsp;${y.symbol}</span>
+    <td><td align=left><span style="font-size: .8rem; font-family: sans-serif">vs&nbsp;${y.symbol}</span>
     <td align=right> ${longpercent(x.market_cap_usd / y.market_cap_usd)}
     <td align=right> ${$$$$(x.price_usd, y)}${order(x.price_usd / y.price_usd) > 0 ? "" : "&nbsp;"}
     <td align=right>${change(((1 + x.percent_change_1h / 100) / (1 + y.percent_change_1h / 100) - 1) * 100)}</td>
