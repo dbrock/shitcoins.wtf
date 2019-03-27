@@ -32,7 +32,7 @@ starred = x => [].concat(...pairs).includes(x.symbol)
 extras = x => pairs.filter(y => y[0] == x).map(x => coin(x[1]))
 classes = x => [x.symbol, ...(starred(x) ? ["star"] : [])]
 redgreen = x => redgreen100(x.percent_change_24h)
-redgreen100 = x => Math.abs(Math.round(x)) < 1 ? "gray" : x < 0 ? "red" : "green"
+redgreen100 = x => Math.abs(Math.round(x)) < 1 ? "#999" : x < 0 ? "red" : "green"
 percentk = x => x > 1000 ? `${Math.round(x / 1000)}k` : x
 percent = x => percentk(Math.round(x * 100)) + "%"
 order = x => Math.floor(Math.log10(x) / 3)
