@@ -69,13 +69,13 @@ document.body.innerHTML = small ? (`<table>
 <thead>
   <tr class=blue style="font-size: .8rem; line-height: 1.3rem">
     <td align=right> #
-    <td> SYMBOL
+    <td align=left> SYMBOL
     <td align=right> MCAP
-    <td align=right> PRICE
+    <td align=center> PRICE
     <td align=right> HR
     <td align=right> HR24
     <td align=right> VOL24
-    <td align=right> WEEK
+    <td align=center> WEEK
 <tbody>
 ${ticker.map(x => `
   <tr class="main ${classes(x).join(" ")}">
