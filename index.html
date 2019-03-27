@@ -2,7 +2,7 @@
 <meta name=viewport content=width=device-width>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,BCHBTC,ETCETH,ETCBTC,ZECBTC,REPETH,REPBTC,DOGE_BTC,GNTETH,BTSBTC,EOSBTC,BSVBTC,DASH_BTC,DAI_USDT,XEMBTC,ADABTC,OMGETH,OMGBTC,BATETH,BATBTC,LSKETH,LSKBTC,STEEM_BTC,FCTBTC,BNBBTC,MAID_BTC,XLMBTC"
+pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,BCHBTC,ETCETH,ETCBTC,ZECBTC,REPETH,REPBTC,DOGE_BTC,GNTETH,BTSBTC,EOSBTC,BSVBTC,DASH_BTC,XEMBTC,ADABTC,OMGETH,OMGBTC,BATETH,BATBTC,LSKETH,LSKBTC,STEEM_BTC,FCTBTC,BNBBTC,MAID_BTC,XLMBTC"
 signs = { BTC: "₿", LTC: "Ł", ETH: "Ξ", DAI: "⬙" }
 if (location.search) location.href = location.href.replace(/\?.*/, "")
 </script><style>
@@ -35,11 +35,12 @@ redgreen = x => redgreen100(x.percent_change_24h)
 redgreen100 = x => Math.abs(Math.round(x)) < 1 ? "#999" : x < 0 ? "red" : "green"
 percentk = x => x > 1000 ? `${Math.round(x / 1000)}k` : x
 percent = x => percentk(Math.round(x * 100)) + "%"
+longpercent = x => `${x < 0.1 ? (x * 100).toFixed(1) : Math.round(x * 100)}%`
 order = x => Math.floor(Math.log10(x) / 3)
 orders = ["p", "n", "&mu;", "m", "dummy", "k", "M", "B", "T"]
 unit = x => order(x) ? orders[order(x) + 4] || "??" : ""
 highlight = x => trim(x.replace(/.+/, "<b>$&</b>"))
-trim = x => small ? x.replace(/(\d{2,3})\.\d+/, "$1") : x.replace(/(\d{3})\.\d+/, "$1") 
+trim = x => small ? x.replace(/(\d{2,3})\.\d+/, "$1") : x.replace(/(\d{3})\.\d+/, "$1")
 num = x => highlight((x / Math.pow(10, order(x) * 3)).toFixed(small ? 1 : 2))
 $2 = x => format(x).replace(/(?=\d)/, "$")
 $ = x => cent(format(x).replace(/(?=\d)/, "$"))
@@ -62,7 +63,7 @@ btc = ticker.find(x => x.symbol == "BTC")
 document.body.innerHTML = small ? (`<table>
 <thead>
   <tr class=blue>
-    <td align=right>#<td>TOKEN
+    <td align=right><td>TOKEN
     <td align=right>MCAP
     <td align=right>PRICE
     <td align=right>HR
@@ -83,13 +84,14 @@ ${ticker.map(x => `
     <td align=right> ${change(x.percent_change_7d)}
   ${extras(x.symbol).map((y, i) => `
   <tr class=extra>
-    <td align=left colspan=3>
-    <span style="float: right"> ${$$$$(x.market_cap_usd, y)} (${percent(x.market_cap_usd / y.market_cap_usd)})
+    <td><td align=left colspan=2>
+    <span style="font: 10pt sans-serif">vs ${y.symbol}</span>
+    <span style="float: right"> ${longpercent(x.market_cap_usd / y.market_cap_usd)}
     <td align=right> ${$$$$(x.price_usd, y)}${
       order(x.price_usd / y.price_usd) > 0 ? "" : "&nbsp;"}
     <td align=right>${change(((1 + x.percent_change_1h / 100) / (1 + y.percent_change_1h / 100) - 1) * 100)}</td>
     <td align=right>${change(((1 + x.percent_change_24h / 100) / (1 + y.percent_change_24h / 100) - 1) * 100)}</td>
-    <td align=right> ${$$$$(x["24h_volume_usd"], y)}
+    <td align=right> ${longpercent(x["24h_volume_usd"] / y["24h_volume_usd"])}
     <td align=right>${change(((1 + x.percent_change_7d / 100) / (1 + y.percent_change_7d / 100) - 1) * 100)}</td>
   `).join("")}`).join("")}
 </table>`) : `<table>
