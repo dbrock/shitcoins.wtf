@@ -62,10 +62,13 @@ btc = ticker.find(x => x.symbol == "BTC")
 document.body.innerHTML = small ? (`<table>
 <thead>
   <tr class=blue>
-    <td align=right> <td> TOKEN <td align=right>MCAP
+    <td colspan=2>SHITCOIN
+    <td align=right>MCAP
     <td align=right>PRICE
-    <td align=right>HR <td align=right>DAY<td align=right>WEEK
+    <td align=right>HR
+    <td align=right>24HR
     <td align=right>VOL24
+    <td align=right>WEEK
 <tbody>
 ${ticker.map(x => `
   <tr class="${classes(x).join(" ")}">
@@ -76,8 +79,8 @@ ${ticker.map(x => `
       order(x.price_usd) > 0 ? "" : "&nbsp;"}
     <td align=right> ${change(x.percent_change_1h)}
     <td align=right> ${change(x.percent_change_24h)}
-    <td align=right> ${change(x.percent_change_7d)}
     <td align=right> <b>${$(x["24h_volume_usd"])}</b>
+    <td align=right> ${change(x.percent_change_7d)}
   ${extras(x.symbol).map(y => `
   <tr class=extra>
     <td>
@@ -87,8 +90,8 @@ ${ticker.map(x => `
       order(x.price_usd / y.price_usd) > 0 ? "" : "&nbsp;"}
     <td align=right>${change(((1 + x.percent_change_1h / 100) / (1 + y.percent_change_1h / 100) - 1) * 100)}</td>
     <td align=right>${change(((1 + x.percent_change_24h / 100) / (1 + y.percent_change_24h / 100) - 1) * 100)}</td>
-    <td align=right>${change(((1 + x.percent_change_7d / 100) / (1 + y.percent_change_7d / 100) - 1) * 100)}</td>
     <td align=right> ${$$$$(x["24h_volume_usd"], y)}
+    <td align=right>${change(((1 + x.percent_change_7d / 100) / (1 + y.percent_change_7d / 100) - 1) * 100)}</td>
   `).join("")}`).join("")}
 </table>`) : `<table>
 ${ticker.map(x => `
