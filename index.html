@@ -27,7 +27,7 @@ td:last-child, th:last-child { padding-right: .5rem}
 .gray { color: gray }
 .red { color: red }
 .green { color: #8f8 }
-sub { line-height: 0; font-size: .9rem; color: #999 }
+sub { line-height: 0; font-size: .8rem; color: #999 }
 .blue, .blue * { background: blue; color: white; }
 </style><body><script>
 small = document.body.offsetWidth < 1024
@@ -65,7 +65,7 @@ global = await (await fetch(`${api}/global/`)).json()
 btc = ticker.find(x => x.symbol == "BTC")
 document.body.innerHTML = small ? (`<table>
 <thead>
-  <tr class=blue style="font-size: .9rem; line-height: 1.3rem">
+  <tr class=blue style="font-size: .8rem; line-height: 1.3rem">
     <td align=right> #
     <td> SYMBOL
     <td align=right> MCAP
@@ -89,7 +89,7 @@ ${ticker.map(x => `
   ${extras(x.symbol).map((y, i) => `
   <tr class=extra>
     <td><td align=left>
-    <span style="font: .9rem sans-serif">vs ${y.symbol}</span>
+    <span style="font: .8rem sans-serif">vs&nbsp;${y.symbol}</span>
     <td align=right>
      ${longpercent(x.market_cap_usd / y.market_cap_usd)}
     <td align=right> ${$$$$(x.price_usd, y)}${
@@ -101,9 +101,9 @@ ${ticker.map(x => `
   `).join("")}`).join("")}
 <tfoot>
   <tr class=blue>
-    <td colspan=4 align=center style="font-size: .9rem; line-height: 1.3rem">
+    <td colspan=4 align=center style="font-size: .8rem; line-height: 1.3rem">
      &nbsp;${percent(ticker.filter(x => ethtokens.concat(btctokens, othertokens).some(y => x.symbol == y)).length / ticker.length)}&nbsp;tokens&nbsp;(${percent(ethtokens.length / ethtokens.concat(btctokens, othertokens).length)}&nbsp;ETH)
-    <td colspan=4 align=center style="font-size: .9rem; line-height: 1.3rem"> via&nbsp;coinmarketcap.com
+    <td colspan=4 align=center style="font-size: .8rem; line-height: 1.3rem"> via&nbsp;coinmarketcap.com
 
 </table>`) : `<table>
 ${ticker.map(x => `
