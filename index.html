@@ -2,7 +2,7 @@
 <meta name=viewport content=width=device-width>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,BCHBTC,ETCETH,ETCBTC,ZECBTC,REPETH,DOGE_BTC,GNTETH,BTSBTC,EOSBTC,BSVBCH,DASH_BTC,DAI_USDT,XEMBTC"
+pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,BCHBTC,ETCETH,ETCBTC,ZECBTC,REPETH,DOGE_BTC,GNTETH,BTSBTC,EOSBTC,BSVBCH,DASH_BTC,DAI_USDT,XEMBTC,ADABTC"
 signs = { BTC: "₿", LTC: "Ł", ETH: "Ξ", DAI: "⬙" }
 if (location.search) location.href = location.href.replace(/\?.*/, "")
 </script><style>
@@ -11,24 +11,20 @@ html { font: 20pt/1.3 "Fira Mono", monospace; }
 body { background: black; color: #999; margin: auto; }
 a { color: inherit; }
 table { border-collapse: collapse; width: 100%; }
-td, th { padding: 0 .5rem; vertical-align: top; }
+td, th { padding: 0 .25rem; vertical-align: top; }
 th { color: white; font-weight: normal; }
-thead .total { background: white; color: black; font-weight: bold; }
-thead .banner, tfoot { background: blue; color: white; }
-b { font-weight: inherit; }
-tbody b { color: white; }
+b { font-weight: inherit; color: white; }
+.extra { opacity: .6; color: white; }
 .extra b { color: inherit; }
-.gray .change b { color: gray }
-.red .change b { color: red }
-.green .change b { color: #8f8 }
-.estar .price { background: blue; color: white; }
-.estar .symbol { background: blue; color: white; }
+.gray { color: gray }
+.red { color: red }
+.green { color: #8f8 }
 </style><script>
 _ = x => `${x.substr(0, x.length / 2)}_${x.substr(x.length / 2)}`
 pairs = pairs.split(",").map(x => (/_/.test(x) ? x : _(x)).split("_"))
 starred = x => [].concat(...pairs).includes(x.symbol)
 extras = x => pairs.filter(y => y[0] == x).map(x => coin(x[1]))
-classes = x => [x.symbol, redgreen(x), ...(starred(x) ? ["star"] : [])]
+classes = x => [x.symbol, ...(starred(x) ? ["star"] : [])]
 redgreen = x => redgreen100(x.percent_change_24h)
 redgreen100 = x => Math.abs(Math.round(x)) < 1 ? "gray" : x < 0 ? "red" : "green"
 percentk = x => x > 1000 ? `${Math.round(x / 1000)}k` : x
@@ -48,17 +44,16 @@ crop = (x, n) => x.length > n ? x.substr(0, n - 1) + "&hellip;" : x
 coin = x => ticker.find(y => y.symbol == x)
 share = x => percent(x.market_cap_usd / global.total_market_cap_usd)
 plusminus = x => String(x).replace(/^[^-]/, "+$&").replace(/^-/, "&minus;")
-percentchange = x => `<b>${plusminus(x)}%</b>`
-change = x => percentchange(Math.round(x.percent_change_24h))
-$$$ = (x, y) => format(x / y.price_usd).replace(/(?=\d)/, signs[y.symbol] || "")
+percentchange = x => `${plusminus(x)}%`
+change = x => `<span class=${redgreen100(Math.round(x))}>${percentchange(Math.round(x))}</span>`
+$$$ = (x, y) => format(x / y.price_usd).replace(/(?=<b>)/, signs[y.symbol] || "")
 $$$$ = (x, y) => y.symbol == "USDT" ? $(x / y.price_usd) : $$$(x, y)
 int = x => String(x).replace(/(\d)(\d\d\d)$/, "$1,$2")
 onload = async () => { try {
 ticker = await (await fetch(`${api}/ticker/`)).json()
 global = await (await fetch(`${api}/global/`)).json()
-
-document.body.innerHTML = document.body.offsetWidth < 1024 ? `
-<table>
+btc = ticker.find(x => x.symbol == "BTC")
+document.body.innerHTML = document.body.offsetWidth < 1024 ? `<table>
 ${ticker.map(x => `
   <tr class="${classes(x).join(" ")}">
     <td align=right> ${x.rank}
@@ -66,32 +61,17 @@ ${ticker.map(x => `
     <td align=right class=price> ${$(x.price_usd)}${
       order(x.price_usd) > 0 ? "" : "&nbsp;"}
     <td align=right> ${$(x.market_cap_usd)}
-    <td align=right class=change> ${change(x)}
+    <td align=right class=change> ${change(x.percent_change_24h)}
   ${extras(x.symbol).map(y => `
   <tr class=extra>
     <td><td colspan=2>
     <span style="float: right"> ${$$$$(x.price_usd, y)}${
       order(x.price_usd / y.price_usd) > 0 ? "" : "&nbsp;"}
     <td align=right class=price> ${percent(x.market_cap_usd / y.market_cap_usd)} ${crop(y.symbol, 6)}
+    <td align=right class=foo>${change(((1 + x.percent_change_24h / 100) / (1 + y.percent_change_24h / 100) - 1) * 100)}</td>
   `).join("")}`).join("")}
-</table>
-` : `<table>
-<thead>
-  <tr class=banner style="display: none">
-    <td align=right colspan=7>
-      ${pairs.map(([x, y]) => `${signs[x] || x}${signs[y] || y}${formatshort(
-        coin(x).price_usd / coin(y).price_usd
-      )}`).join(" ")}
-  <tr class=total style="display: none">
-    <td align=right>${int(global.active_assets + global.active_currencies)}
-    <td>Shitcoins
-    <td colspan=1 align=right>
-      ${$(global.total_market_cap_usd)}
-    <td colspan=2 align=left>
-      (${share(ticker[0])}&nbsp;${ticker[0].symbol},&nbsp;${
-        share(ticker[1])}&nbsp;${ticker[1].symbol})
-    <td colspan=2 align=right> ${$(global.total_24h_volume_usd)}</td>
-<tbody> ${ticker.map(x => `
+</table>` : `<table>
+${ticker.map(x => `
   <tr class="${classes(x).join(" ")}">
     <td align=right> ${x.rank}
     <th align=left style="letter-spacing: -1px">${x.name} ${signs[x.symbol] ? `(${signs[x.symbol]})` : ""}</th>
@@ -101,7 +81,7 @@ ${ticker.map(x => `
     <td align=right class=symbol> ${crop(x.symbol, 6)}
     <td align=right class=price> ${$(x.price_usd)}${
       order(x.price_usd) > 0 ? "" : "&nbsp;"}
-    <td align=right class=change> ${change(x)}
+    <td align=right class=change> ${change(x.percent_change_24h)}
     <td align=right> ${$(x["24h_volume_usd"])}
   ${extras(x.symbol).map(y => `
   <tr class=extra>
