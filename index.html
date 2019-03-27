@@ -28,7 +28,8 @@ td:last-child, th:last-child { padding-right: .5rem}
 .red { color: red }
 .green { color: #8f8 }
 sub { line-height: 0; font-size: .8rem; color: #999 }
-.blue, .blue * { background: blue; color: white; }
+.blue, .blue * { background: blue; color: white; border-color: blue !important }
+tr.main > * { border-top: 1px solid #333 }
 </style><body><script>
 small = document.body.offsetWidth < 1024
 starred = x => [].concat(...pairs).includes(x.symbol)
@@ -76,7 +77,7 @@ document.body.innerHTML = small ? (`<table>
     <td align=right> WEEK
 <tbody>
 ${ticker.map(x => `
-  <tr class="${classes(x).join(" ")}">
+  <tr class="main ${classes(x).join(" ")}">
     <td align=right><span style="font-size: .8rem"> ${x.rank}
     <th align=left> ${crop(x.symbol, 5)}<sub>${ethtokens.includes(x.symbol) ? signs["ETH"] : btctokens.includes(x.symbol) ? signs["BTC"] : othertokens.includes(x.symbol) ? "*" : ""}</sub>
     <td align=right> ${$(x.market_cap_usd)}
