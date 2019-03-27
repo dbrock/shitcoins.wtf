@@ -2,7 +2,7 @@
 <meta name=viewport content=width=device-width>
 <title>shitcoins.wtf</title><script>
 api = "https://api.coinmarketcap.com/v1"
-pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,BCHBTC,ETCETH,ETCBTC,ZECBTC,REPETH,REPBTC,DOGE_BTC,GNTETH,BTSBTC,EOSBTC,BSVBCH,DASH_BTC,DAI_USDT,XEMBTC,ADABTC,OMGETH,OMGBTC,BATETH,BATBTC,LSKETH,LSKBTC,STEEM_BTC,FCTBTC,BNBBTC,MAID_BTC,XLMBTC"
+pairs = "LTCBTC,XMRBTC,ETHBTC,MKRETH,MKRBTC,BCHBTC,ETCETH,ETCBTC,ZECBTC,REPETH,REPBTC,DOGE_BTC,GNTETH,BTSBTC,EOSBTC,BSVBCH,BSVBTC,DASH_BTC,DAI_USDT,XEMBTC,ADABTC,OMGETH,OMGBTC,BATETH,BATBTC,LSKETH,LSKBTC,STEEM_BTC,FCTBTC,BNBBTC,MAID_BTC,XLMBTC"
 signs = { BTC: "₿", LTC: "Ł", ETH: "Ξ", DAI: "⬙" }
 if (location.search) location.href = location.href.replace(/\?.*/, "")
 </script><style>
@@ -68,7 +68,7 @@ document.body.innerHTML = small ? (`<table>
 ${ticker.map(x => `
   <tr class="${classes(x).join(" ")}">
     <td align=right> ${x.rank}
-    <th align=left> ${crop(x.symbol, 6)}
+    <th align=left> ${crop(x.symbol, 5)}
     <td align=right> ${$(x.market_cap_usd)}
     <td align=right style="background: blue"> ${$(x.price_usd)}${
       order(x.price_usd) > 0 ? "" : "&nbsp;"}
@@ -80,7 +80,7 @@ ${ticker.map(x => `
   <tr class=extra>
     <td>
     <td align=left colspan=2>
-    <span style="float: right"> ${crop(y.symbol, 6)} ${percent(x.market_cap_usd / y.market_cap_usd)} 
+    <span style="float: right"> ${crop(y.symbol, 5)} ${percent(x.market_cap_usd / y.market_cap_usd)} 
     <td align=right> ${$$$$(x.price_usd, y)}${
       order(x.price_usd / y.price_usd) > 0 ? "" : "&nbsp;"}
     <td align=right>${change(((1 + x.percent_change_1h / 100) / (1 + y.percent_change_1h / 100) - 1) * 100)}</td>
@@ -96,7 +96,7 @@ ${ticker.map(x => `
     <td align=right title="Total available supply: ${
       Number(x.available_supply).toLocaleString()
     } ${x.symbol}"> ${$(x.market_cap_usd)}
-    <td align=right> ${crop(x.symbol, 6)}
+    <td align=right> ${crop(x.symbol, 100)}
     <td align=right> ${$(x.price_usd)}${
       order(x.price_usd) > 0 ? "" : "&nbsp;"}
     <td align=right> ${change(x.percent_change_24h)}
