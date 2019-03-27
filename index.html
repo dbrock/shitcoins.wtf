@@ -23,6 +23,8 @@ td, th { padding: 0 .25rem; vertical-align: top; }
 th { color: white; font-weight: normal; }
 b { font-weight: inherit; color: white; }
 td:last-child, th:last-child { padding-right: .5rem}
+.header { position: fixed }
+.header tbody { visibility: hidden; pointer-events: none; }
 .extra b { color: inherit; }
 .gray { color: gray }
 .red { color: red }
@@ -65,9 +67,9 @@ onload = async () => { try {
 ticker = (await (await fetch(`${api}/ticker/`)).json())
 global = await (await fetch(`${api}/global/`)).json()
 btc = ticker.find(x => x.symbol == "BTC")
-document.body.innerHTML = small ? (`<table>
-<thead>
-  <tr class=blue style="font-size: .8rem; line-height: 1.3rem">
+document.body.innerHTML = small ? ((x => `${x.replace(`<table>`, `<table class=header>`)}${x}`)(`<table>
+<thead style="">
+  <tr class=blue style="font-size: .8rem; line-height: 1.3rem; position: sticky">
     <td align=right> #
     <td align=left> SYMBOL
     <td align=right> MCAP
@@ -103,7 +105,7 @@ ${ticker.map(x => `
      &nbsp;${percent(ticker.filter(x => ethtokens.concat(btctokens, othertokens).some(y => x.symbol == y)).length / ticker.length)}&nbsp;tokens&nbsp;(${percent(ethtokens.length / ethtokens.concat(btctokens, othertokens).length)}&nbsp;ETH)
     <td colspan=4 align=center style="font-size: .8rem; line-height: 1.3rem"> via&nbsp;coinmarketcap.com
 
-</table>`).replace(/\+0%/g, "") : `<table>
+</table>`).replace(/\+0%/g, "")) : `<table>
 ${ticker.map(x => `
   <tr class="${classes(x).join(" ")}">
     <td align=right> ${x.rank}
