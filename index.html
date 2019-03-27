@@ -100,7 +100,7 @@ ${ticker.map(x => `
 <tfoot>
   <tr class=blue>
     <td colspan=4 align=center style="font-size: 10pt; line-height: 1.3rem">
-     ${percent(ticker.filter(x => ethtokens.some(y => x.symbol == y)).length / ticker.length)} Ethereum tokens
+     ${percent(ticker.filter(x => ethtokens.concat(btctokens, othertokens).some(y => x.symbol == y)).length / ticker.length)} tokens (${percent(ethtokens.length / ethtokens.concat(btctokens, othertokens).length)} ETH)
     <td colspan=4 align=center style="font-size: 10pt; line-height: 1.3rem"> via coinmarketcap.com
 
 </table>`) : `<table>
