@@ -22,6 +22,7 @@ table { border-collapse: collapse; width: 100%; }
 td, th { padding: 0 .25rem; vertical-align: top; }
 th { color: white; font-weight: normal; }
 b { font-weight: inherit; color: white; }
+td:last-child, th:last-child { padding-right: .5rem}
 .extra b { color: inherit; }
 .gray { color: gray }
 .red { color: red }
@@ -59,7 +60,7 @@ $$$ = (x, y) => format(x / y.price_usd).replace(/(?=<b>)/, signs[y.symbol] || ""
 $$$$ = (x, y) => y.symbol == "USDT" ? $(x / y.price_usd) : $$$(x, y)
 int = x => String(x).replace(/(\d)(\d\d\d)$/, "$1,$2")
 onload = async () => { try {
-ticker = (await (await fetch(`${api}/ticker/`)).json()).slice(0, 99)
+ticker = (await (await fetch(`${api}/ticker/`)).json())
 global = await (await fetch(`${api}/global/`)).json()
 btc = ticker.find(x => x.symbol == "BTC")
 document.body.innerHTML = small ? (`<table>
@@ -87,9 +88,10 @@ ${ticker.map(x => `
     <td align=right> ${change(x.percent_change_7d)}
   ${extras(x.symbol).map((y, i) => `
   <tr class=extra>
-    <td><td align=left colspan=2>
+    <td><td align=left>
     <span style="font: 10pt sans-serif">vs ${y.symbol}</span>
-    <span style="float: right"> ${longpercent(x.market_cap_usd / y.market_cap_usd)}
+    <td align=right>
+     ${longpercent(x.market_cap_usd / y.market_cap_usd)}
     <td align=right> ${$$$$(x.price_usd, y)}${
       order(x.price_usd / y.price_usd) > 0 ? "" : "&nbsp;"}
     <td align=right>${change(((1 + x.percent_change_1h / 100) / (1 + y.percent_change_1h / 100) - 1) * 100)}</td>
