@@ -8,7 +8,7 @@ b { font-weight: inherit; color: white; } .extra b { color: inherit; } .extra { 
 <body><script> small = document.body.offsetWidth < 500 && false
 extras = x => pairs.filter(y => y[0] == x).map(x => ticker.find(y => y.symbol == x[1])), coin = x => JSON.parse(localStorage[x] || "null")
 aif = (x, f) => x ? f(x) : ""
-percentk = x => x > 1000 ? `${Math.round(x / 1000)}k` : x, percent = x => percentk(Math.round(x * 100)) + "%", longpercent = x => `${x < 0.1 ? (x * 100).toFixed(1) : Math.round(x * 100)}%`, change = x => `<span style="letter-spacing: ${Math.abs(Math.round(x)) >= 100 ? `-.1rem` : `0`}" class=${Math.abs(Math.round(x)) < 1 ? "#999" : x < 0 ? "red" : "green"}>${String(Math.round(x)).replace(/^[^-]/, "+$&").replace(/^-/, "&minus;")}%</span>`
+percentk = x => x > 1000 ? `${Math.round(x / 1000)}k` : x, percent = x => percentk(Math.round(x * 100)) + "%", longpercent = x => `${x < 0.1 ? (x * 100).toFixed(1) : Math.round(x * 100)}%`.replace(/^0\./, ".").replace(/^\.0%$/, ""), change = x => Math.round(x) >= 1000 ? percent(x / 100) : `<span style="letter-spacing: ${Math.abs(Math.round(x)) >= 100 ? `-.1rem` : `0`}" class=${Math.abs(Math.round(x)) < 1 ? "#999" : x < 0 ? "red" : "green"}>${String(Math.round(x)).replace(/^[^-]/, "+$&").replace(/^-/, "&minus;")}%</span>`
 order = x => Math.floor(Math.log10(x) / 3), orders = ["p", "n", "&mu;", "m", "dummy", "k", "M", "B", "T"], unit = x => order(x) ? orders[order(x) + 4] || "??" : "", trim = x => x.replace(/(\d{1,3})\.\d+/, "$1").replace(/(\d)\d{2}<\/b>M/, `.$1</b>B`).replace(/(\d)\d{2}<\/b>k/, `.$1</b>M`) , num = x => `<b>${(x / Math.pow(10, order(x) * 3)).toFixed(small ? 1 : 2)}</b>`, $price = x => !small && x >= 1000 && x < 100000 ? `$${x.toFixed(0).replace(/...$/, ",$&")}` : $(x), $ = x => format(x).replace(/(?=\d)/, "$").replace(/m<b>\$([\d.]+)/g, (m, n) => `<b>&cent;${(n / 10).toFixed(small ? 1 : 2)}`), format = x => order(x) < 0 ? `${unit(x)}${num(x)}` : `${num(x)}${unit(x)}`, crop = (x, n) => x.length > n ? x.substr(0, n - 1) + "&hellip;" : x, $$$$ = (x, y) => y.symbol == "USDT" ? $(x / y.quotes.USD.price) : format(x / y.quotes.USD.price).replace(/(?=<b>)/, signs[y.symbol] || "")
 GET = x => (console.log(`GET ${x}`), fetch(x))
 onload = async () => { global = await (await GET(`${api}/global/`)).json(), ticker = (await (await GET(`${api}/tickers/`)).json()).filter(x => x.quotes.USD.market_cap).sort((a, b) => a.rank - b.rank), btc = ticker.find(x => x.symbol == "BTC")
@@ -22,8 +22,9 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
     <td align=center> PRICE
     <td align=right style="padding: 0"> 1H
     <td align=right> 1D
-    <td align=right> VOL
-    <td align=right style="padding: 0"> 7D
+    <td align=right> DV
+    <td align=right> DV%
+    <td align=right style="padding: 0"> 1W
     <td align=right> 1Y
     <td align=center style="padding: 0"> <span style="font-efamily: sans-serif; letter-espacing: -.1rem">&beta;
     <td align=center style="padding: 0"> YR
@@ -36,6 +37,7 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
     <td align=right style="padding: 0"> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_1h)}
     <td align=right> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_24h)}
     <td align=right> <span style="font-size: .8rem; "> <b>${trim($(x.quotes.USD.volume_24h))}</b>
+    <td align=right ${x.quotes.USD.volume_24h_change_24h > 1000 ? `style="background: red; color: white; border: none"` : `class=gray`}> <span style="font-size: .8rem"> ${change(x.quotes.USD.volume_24h_change_24h)}
     <td align=right style="padding: 0"> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_7d)}
     <td align=right class=gray> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_1y)}
     <td align=center> <span style="font-size: .8rem; "> ${Math.round(x.beta_value * 10).toString().replace(/^-0/, `0`)}
@@ -49,6 +51,7 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
       <td align=right style="padding: 0">${change(((1 + x.quotes.USD.percent_change_1h / 100) / (1 + y.quotes.USD.percent_change_1h / 100) - 1) * 100)}</td>
       <td align=right>${change(((1 + x.quotes.USD.percent_change_24h / 100) / (1 + y.quotes.USD.percent_change_24h / 100) - 1) * 100)}</td>
       <td align=right> ${longpercent(x.quotes.USD.volume_24h / y.quotes.USD.volume_24h)}
+      <td align=right ${((1 + x.quotes.USD.volume_24h_change_24h / 100) / (1 + y.quotes.USD.volume_24h_change_24h / 100) - 1) * 100 > 1000 ? `style="background: red; color: white; border: none"` : `class=gray`}> ${!x.quotes.USD.volume_24h_change_24h ? `` : change(((1 + x.quotes.USD.volume_24h_change_24h / 100) / (1 + y.quotes.USD.volume_24h_change_24h / 100) - 1) * 100)}</td>
       <td align=right style="padding: 0"> ${change(((1 + x.quotes.USD.percent_change_7d / 100) / (1 + y.quotes.USD.percent_change_7d / 100) - 1) * 100)}</td>
       <td align=right class=gray> ${!x.quotes.USD.percent_change_1y ? `` : change(((1 + x.quotes.USD.percent_change_1y / 100) / (1 + y.quotes.USD.percent_change_1y / 100) - 1) * 100)}</td>
       <td>
@@ -59,7 +62,7 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
   <tr class=blue>
     <td colspan=5 align=center style="font-size: .8rem; line-height: 1.3rem">
      &nbsp;${percent(ticker.filter(x => ethtokens.concat(btctokens, othertokens).some(y => x.symbol == y)).length / ticker.length)}&nbsp;tokens&nbsp;(${percent(ethtokens.length / ethtokens.concat(btctokens, othertokens).length)}&nbsp;ETH)
-    <td colspan=6 align=center style="font-size: .8rem; line-height: 1.3rem"> via&nbsp;coinpaprika.com
+    <td colspan=7 align=center style="font-size: .8rem; line-height: 1.3rem"> via&nbsp;coinpaprika.com
 </table>
 `).replace(/\+0%|\b0\.0%/g, ""))
 tokens = `ACT VEX
