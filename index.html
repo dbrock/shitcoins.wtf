@@ -20,23 +20,23 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
     <td align=left> SYMBOL
     <td align=right> MCAP
     <td align=center> PRICE
-    <td align=right> 1H
+    <td align=right style="padding: 0"> 1H
     <td align=right> 1D
-    <td align=right> 1DV
-    <td align=right> 7D
+    <td align=right> VOL
+    <td align=right style="padding: 0"> 7D
     <td align=right> 365D
-    <td align=center> <span style="font-family: sans-serif">&beta;
-    <td align=center> YR
+    <td align=center style="padding: 0"> <span style="font-family: sans-serif; letter-spacing: -.1rem">&beta;e1
+    <td align=center style="padding: 0"> YR
 <tbody> ${ticker.slice(0, limit).map(x => `
   <tr class=main>
     <td align=center><span style="font-size: .8rem"> ${x.rank}
     <th align=left> ${aif(coin(x.id), c => c.development_status == "Working product" || c.development_status == "On-going development" || c.development_status == "Beta version" ?  `` : `<span style="text-decoration: line-through">`)}${aif(coin(x.id), c => c.open_source && c.org_structure == "Decentralized" ? `<span style="xfont-weight: bold">` : ``)}${crop(x.symbol, 6)}</span><sub>${ethtokens.includes(x.symbol) ? signs["ETH"] : btctokens.includes(x.symbol) ? signs["BTC"] : othertokens.includes(x.symbol) ? "*" : ""}${aif(coin(x.id), c => c.proof_type == "Not mineable" ? `` : c.proof_type.match(/work|pow/i) ? `` : c.proof_type.match(/stake|pos/i) ? `S` : `E`)}</sub>
     <td align=right> <span style="font-size: .8rem; "> ${trim($(x.quotes.USD.market_cap))}
     <td align=right class=blue> ${$price(x.quotes.USD.price)}${order(x.quotes.USD.price) > 0 ? "" : "&nbsp;"}
-    <td align=right> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_1h)}
+    <td align=right style="padding: 0"> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_1h)}
     <td align=right> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_24h)}
     <td align=right> <span style="font-size: .8rem; "> <b>${trim($(x.quotes.USD.volume_24h))}</b>
-    <td align=right> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_7d)}
+    <td align=right style="padding: 0"> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_7d)}
     <td align=right class=gray> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_1y)}
     <td align=center> <span style="font-size: .8rem; "> ${Math.round(x.beta_value * 10).toString().replace(/^-0/, `0`)}
     <td align=center> ${aif(coin(x.id), c => `<span style="font-size: .8rem; "> ${c.started_at ? `${Math.floor((new Date - new Date(c.started_at)) / (1000 * 60 * 60 * 24 * 365))}`.replace(/^0$/, ``) : ``}</span>`)}
@@ -46,10 +46,10 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
       <td align=left><span style="font-size: .8rem; font-family: sans-serif">vs&nbsp;${y.symbol}</span>
       <td align=right> ${longpercent(x.quotes.USD.market_cap / y.quotes.USD.market_cap)}
       <td align=right> <span style="font-size: 1rem !important"> ${$$$$(x.quotes.USD.price, y)}${order(x.quotes.USD.price / y.quotes.USD.price) > 0 ? "" : "&nbsp;"}
-      <td align=right>${change(((1 + x.quotes.USD.percent_change_1h / 100) / (1 + y.quotes.USD.percent_change_1h / 100) - 1) * 100)}</td>
+      <td align=right style="padding: 0">${change(((1 + x.quotes.USD.percent_change_1h / 100) / (1 + y.quotes.USD.percent_change_1h / 100) - 1) * 100)}</td>
       <td align=right>${change(((1 + x.quotes.USD.percent_change_24h / 100) / (1 + y.quotes.USD.percent_change_24h / 100) - 1) * 100)}</td>
       <td align=right> ${longpercent(x.quotes.USD.volume_24h / y.quotes.USD.volume_24h)}
-      <td align=right> ${change(((1 + x.quotes.USD.percent_change_7d / 100) / (1 + y.quotes.USD.percent_change_7d / 100) - 1) * 100)}</td>
+      <td align=right style="padding: 0"> ${change(((1 + x.quotes.USD.percent_change_7d / 100) / (1 + y.quotes.USD.percent_change_7d / 100) - 1) * 100)}</td>
       <td align=right class=gray> ${!x.quotes.USD.percent_change_1y ? `` : change(((1 + x.quotes.USD.percent_change_1y / 100) / (1 + y.quotes.USD.percent_change_1y / 100) - 1) * 100)}</td>
       <td>
       <td>
