@@ -46,7 +46,7 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
   ${extras(x.symbol).map((y, i) => `
     <tr class=extra>
       <td>
-      <td align=left><span>vs&nbsp;${y.symbol}
+      <td align=left><span style="font-family: sans-serif">vs&nbsp;${y.symbol}
       <td align=right><span> ${longpercent(x.quotes.USD.market_cap / y.quotes.USD.market_cap)}
       <td align=right> <span style="font-size: 1rem !important; color: white"> ${$$$$(x.quotes.USD.price, y)}${order(x.quotes.USD.price / y.quotes.USD.price) > 0 ? "" : "&nbsp;"}
       <!--td align=right style="padding: 0">${change(((1 + x.quotes.USD.percent_change_1h / 100) / (1 + y.quotes.USD.percent_change_1h / 100) - 1) * 100)}</td-->
