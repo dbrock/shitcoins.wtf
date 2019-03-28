@@ -3,7 +3,7 @@ limit=99, api="https://api.coinpaprika.com/v1", signs={ BTC: "₿", ETH: "Ξ" }
 specialpairs="LTCBTC XMRBTC ETHBTC MKRETH MKRBTC ETCETH ETCBTC ZECBTC DOGE_BTC BCHBTC BTSBTC DASH_BTC XEMBTC LSKETH LSKBTC BSVBTC DAI_USDT MAID_BTC USDCUSDT TUSDUSDT STEEM_BTC"
 if (location.search) location.href=location.href.replace(/\?.*/, "") </script>
 <style> @import url("https://fonts.googleapis.com/css?family=Fira+Mono:400,700"); html { font: 12pt/1.3 "Fira Mono", monospace; } @media (min-width: 768px) { html { font-size: 24pt; } } body { background: black; color: #999; margin: 0; }
-table { border-collapse: collapse; width: 100%; } td, th { padding: 0 .25rem; vertical-align: top; } th { color: white; font-weight: normal; } tr.main > * { border-top: 1px solid #333 } .header { position: fixed } .header tbody { visibility: hidden; pointer-events: none; }
+table { border-collapse: collapse; width: 100%; } td, th { padding: 0 .2rem; vertical-align: top; } th { color: white; font-weight: normal; } tr.main > * { border-top: 1px solid #333 } .header { position: fixed } .header tbody { visibility: hidden; pointer-events: none; }
 b { font-weight: inherit; color: white; } .extra b { color: inherit; } .extra { font-size: .8rem; line-height: 1.3rem } sub { line-height: 0; font-size: .8rem; color: #999 } .gray, .gray * { color: #999 !important } .red { color: red } .green { color: #8f8 } .blue, .blue * { background: blue; color: white; border-color: blue !important } </style>
 <body><script> small = document.body.offsetWidth < 500 && false
 extras = x => pairs.filter(y => y[0] == x).map(x => ticker.find(y => y.symbol == x[1])), coin = x => JSON.parse(localStorage[x] || "null")
@@ -16,21 +16,21 @@ t0 = new Date; do { next = ticker.find((x, i) => x.rank <= limit && !localStorag
 render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${x.replace(`<table>`, `<table class=header>`)}${x}`)(`<table>
 <thead>
   <tr class=blue style="font-size: .8rem; line-height: 1.3rem">
-    <td align=right> #
+    <td align=center> #
     <td align=left> SYMBOL
     <td align=right> MCAP
     <td align=center> PRICE
     <td align=right> 1H
     <td align=right> 1D
-    <td align=right> VOL1D
-    <td align=right> 1W
-    <td align=right> 1Y
-    <td align=center> Y#
-    <td align=center> <span style="font-family: sans-serif">&beta;e1
+    <td align=right> 1DV
+    <td align=right> 7D
+    <td align=right> 365D
+    <td align=center> <span style="font-family: sans-serif">&beta;
+    <td align=center> YR
 <tbody> ${ticker.slice(0, limit).map(x => `
   <tr class=main>
-    <td align=right><span style="font-size: .8rem"> ${x.rank}
-    <th align=left> ${aif(coin(x.id), c => c.development_status == "Working product" || x.symbol == "BSV" || c.development_status == "Beta version" ?  `` : `<span style="text-decoration: line-through">`)}${aif(coin(x.id), c => c.open_source && c.org_structure == "Decentralized" ? `<span style="xfont-weight: bold">` : ``)}${crop(x.symbol, 6)}</span><sub>${ethtokens.includes(x.symbol) ? signs["ETH"] : btctokens.includes(x.symbol) ? signs["BTC"] : othertokens.includes(x.symbol) ? "*" : ""}${aif(coin(x.id), c => c.proof_type == "Not mineable" ? `` : c.proof_type.match(/work|pow/i) ? `` : c.proof_type.match(/stake|pos/i) ? `S` : `E`)}</sub>
+    <td align=center><span style="font-size: .8rem"> ${x.rank}
+    <th align=left> ${aif(coin(x.id), c => c.development_status == "Working product" || c.development_status == "On-going development" || c.development_status == "Beta version" ?  `` : `<span style="text-decoration: line-through">`)}${aif(coin(x.id), c => c.open_source && c.org_structure == "Decentralized" ? `<span style="xfont-weight: bold">` : ``)}${crop(x.symbol, 6)}</span><sub>${ethtokens.includes(x.symbol) ? signs["ETH"] : btctokens.includes(x.symbol) ? signs["BTC"] : othertokens.includes(x.symbol) ? "*" : ""}${aif(coin(x.id), c => c.proof_type == "Not mineable" ? `` : c.proof_type.match(/work|pow/i) ? `` : c.proof_type.match(/stake|pos/i) ? `S` : `E`)}</sub>
     <td align=right> <span style="font-size: .8rem; "> ${trim($(x.quotes.USD.market_cap))}
     <td align=right class=blue> ${$price(x.quotes.USD.price)}${order(x.quotes.USD.price) > 0 ? "" : "&nbsp;"}
     <td align=right> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_1h)}
@@ -38,8 +38,8 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
     <td align=right> <span style="font-size: .8rem; "> <b>${trim($(x.quotes.USD.volume_24h))}</b>
     <td align=right> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_7d)}
     <td align=right class=gray> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_1y)}
-    <td align=center> ${aif(coin(x.id), c => `<span style="font-size: .8rem; "> ${c.started_at ? `${Math.floor((new Date - new Date(c.started_at)) / (1000 * 60 * 60 * 24 * 365))}`.replace(/^0$/, ``) : ``}</span>`)}
     <td align=center> <span style="font-size: .8rem; "> ${Math.round(x.beta_value * 10).toString().replace(/^-0/, `0`)}
+    <td align=center> ${aif(coin(x.id), c => `<span style="font-size: .8rem; "> ${c.started_at ? `${Math.floor((new Date - new Date(c.started_at)) / (1000 * 60 * 60 * 24 * 365))}`.replace(/^0$/, ``) : ``}</span>`)}
   ${extras(x.symbol).map((y, i) => `
     <tr class=extra>
       <td>
