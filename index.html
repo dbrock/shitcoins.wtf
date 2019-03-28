@@ -1,5 +1,5 @@
 <!doctype html> <html lang=en> <meta charset=utf-8> <meta name=viewport content=width=device-width> <title>shitcoins.wtf</title> <script>
-limit=100, api="https://api.coinpaprika.com/v1", signs={ BTC: "₿", ETH: "Ξ" }
+limit=200, api="https://api.coinpaprika.com/v1", signs={ BTC: "₿", ETH: "Ξ" }
 specialpairs="LTCBTC XMRBTC ETHBTC MKRETH MKRBTC ETCETH ETCBTC ZECBTC DOGE_BTC BCHBTC BTSBTC DASH_BTC XEMBTC LSKETH LSKBTC BSVBTC DAI_USDT MAID_BTC USDCUSDT TUSDUSDT STEEM_BTC"
 if (location.search) location.href=location.href.replace(/\?.*/, "") </script>
 <style> @import url("https://fonts.googleapis.com/css?family=Fira+Mono:400,700"); html { font: 12pt/1.3 "Fira Mono", monospace; } @media (min-width: 768px) { html { font-size: 24pt; } } body { background: black; color: #999; margin: 0; }
@@ -31,7 +31,7 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
   <tr class=main>
     <td align=right><span style="font-size: .8rem"> ${x.rank}
     <td align=center> ${aif(coin(x.id), c => `<span style="font-size: .8rem; "> ${c.started_at ? `${Math.floor((new Date - new Date(c.started_at)) / (1000 * 60 * 60 * 24 * 365))}`.replace(/^0$/, ``) : ``}
-    <th align=left> ${aif(coin(x.id), c => c.development_status == "Working product" || c.development_status == "Beta version" ?  `` : `<span style="text-decoration: line-through">`)}${crop(x.symbol, 6)}</span><sub>${ethtokens.includes(x.symbol) ? signs["ETH"] : btctokens.includes(x.symbol) ? signs["BTC"] : othertokens.includes(x.symbol) ? "*" : ""}${aif(coin(x.id), c => `${c.open_source && c.org_structure == "Decentralized" ? `<span style="color: yellow; font-size: .5rem">&#9733;</span>` : c.open_source && c.org_structure == "Semi-centralized" ? `` : ``}${c.proof_type == "Not mineable" ? `` : c.proof_type.match(/work|pow/i) ? `` : c.proof_type.match(/stake|pos/i) ? `S` : `E`}`)}</sub>
+    <th align=left> ${aif(coin(x.id), c => c.development_status == "Working product" || c.development_status == "Beta version" ?  `` : `<span style="text-decoration: line-through">`)}${aif(coin(x.id), c => c.open_source && c.org_structure == "Decentralized" ? `<span style="xfont-weight: bold">` : ``)}${crop(x.symbol, 6)}</span><sub>${ethtokens.includes(x.symbol) ? signs["ETH"] : btctokens.includes(x.symbol) ? signs["BTC"] : othertokens.includes(x.symbol) ? "*" : ""}${aif(coin(x.id), c => c.proof_type == "Not mineable" ? `` : c.proof_type.match(/work|pow/i) ? `` : c.proof_type.match(/stake|pos/i) ? `S` : `E`)}</sub>
     <td align=right> ${$(x.quotes.USD.market_cap)}
     <td align=right class=blue> ${$(x.quotes.USD.price)}${order(x.quotes.USD.price) > 0 ? "" : "&nbsp;"}
     <td align=right> ${change(x.quotes.USD.percent_change_1h)}
@@ -52,7 +52,7 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
       <td align=right>${change(((1 + x.quotes.USD.percent_change_24h / 100) / (1 + y.quotes.USD.percent_change_24h / 100) - 1) * 100)}</td>
       <td align=right> ${longpercent(x.quotes.USD.volume_24h / y.quotes.USD.volume_24h)}
       <td align=right> ${change(((1 + x.quotes.USD.percent_change_7d / 100) / (1 + y.quotes.USD.percent_change_7d / 100) - 1) * 100)}</td>
-      <td align=right class=gray> ${change(((1 + x.quotes.USD.percent_change_1y / 100) / (1 + y.quotes.USD.percent_change_1y / 100) - 1) * 100)}</td>
+      <td align=right class=gray> ${!x.quotes.USD.percent_change_1y ? `` : change(((1 + x.quotes.USD.percent_change_1y / 100) / (1 + y.quotes.USD.percent_change_1y / 100) - 1) * 100)}</td>
       <td>
   `).join("")}
 `).join("")}
