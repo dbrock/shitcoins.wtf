@@ -26,7 +26,7 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
     <td align=right> 1W
     <td align=right> 1Y
     <td align=center> Y#
-    <td align=center> <span style="font-family: sans-serif">&beta;
+    <td align=center> <span style="font-family: sans-serif">&beta;e1
 <tbody> ${ticker.slice(0, limit).map(x => `
   <tr class=main>
     <td align=right><span style="font-size: .8rem"> ${x.rank}
@@ -39,7 +39,7 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
     <td align=right> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_7d)}
     <td align=right class=gray> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_1y)}
     <td align=center> ${aif(coin(x.id), c => `<span style="font-size: .8rem; "> ${c.started_at ? `${Math.floor((new Date - new Date(c.started_at)) / (1000 * 60 * 60 * 24 * 365))}`.replace(/^0$/, ``) : ``}</span>`)}
-    <td align=center> <span style="font-size: .8rem; "> ${x.beta_value.toFixed(1).replace(/^-0$/, `0`)}
+    <td align=center> <span style="font-size: .8rem; "> ${Math.round(x.beta_value * 10).toString().replace(/^-0/, `0`)}
   ${extras(x.symbol).map((y, i) => `
     <tr class=extra>
       <td>
