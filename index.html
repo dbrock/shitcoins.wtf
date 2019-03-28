@@ -1378,7 +1378,7 @@ ${ticker.map(x => `
   <tr class=blue>
     <td colspan=4 align=center style="font-size: .8rem; line-height: 1.3rem">
      &nbsp;${percent(ticker.filter(x => ethtokens.concat(btctokens, othertokens).some(y => x.symbol == y)).length / ticker.length)}&nbsp;tokens&nbsp;(${percent(ethtokens.length / ethtokens.concat(btctokens, othertokens).length)}&nbsp;ETH)
-    <td colspan=4 align=center style="font-size: .8rem; line-height: 1.3rem"> via&nbsp;coinmarketcap.com
+    <td colspan=4 align=center style="font-size: .8rem; line-height: 1.3rem"> via&nbsp;coinpaprika.com
 
 </table>`).replace(/\+0%|\b0\.0%/g, "")) : `<table>
 ${ticker.map(x => `
