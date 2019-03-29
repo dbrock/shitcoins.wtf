@@ -2,7 +2,7 @@
 limit=99, api="https://api.coinpaprika.com/v1", signs={ BTC: "₿", ETH: "Ξ" }
 specialpairs="LTCBTC XMRBTC ETHBTC MKRETH MKRBTC ETCETH ETCBTC ZECBTC DOGE_BTC BCHBTC BTSBTC DASH_BTC XEMBTC LSKETH LSKBTC BSVBTC DAI_USDT MAID_BTC USDCUSDT TUSDUSDT STEEM_BTC"
 if (location.search) location.href=location.href.replace(/\?.*/, "") </script>
-<style> @import url("https://fonts.googleapis.com/css?family=Fira+Mono:400,700"); html { font: 12pt/1.3 "Fira Mono", monospace; } @media (min-width: 768px) { html { font-size: 24pt; } } body { background: black; color: #999; margin: 0; }
+<style> @import url("https://fonts.googleapis.com/css?family=Fira+Mono:400,700"); html { font: 12pt/1.3 "Fira Mono", monospace; } @media (min-width: 768px) { html { font-size: 24pt; } } body { background: black; color: #999; margin: 0; } a { color: inherit }
 table { border-collapse: collapse; width: 100%; } td, th { padding: 0 .2rem; vertical-align: top; } th { color: white; font-weight: normal; } thead > * { border-top: 1px solid blue } tr.main > * { border-top: 1px solid #333 } tr:first-child > * { border-top: 0; } .header { position: fixed; pointer-events: none; } .header tbody { visibility: hidden; pointer-events: none; }
 b { font-weight: inherit; color: white; } .extra b { color: inherit; } .extra span { font-size: .8rem; line-height: 1.3rem } sup, sub { line-height: 0; font-size: .8rem; } sub { color: #999 } .gray, .gray * { color: #999 !important } .red { color: red } .green { color: #8f8 } .blue, .blue * { background: blue; color: white; border-color: blue !important } </style>
 <body><script> small = document.body.offsetWidth < 500 && false
@@ -16,13 +16,13 @@ t0 = new Date; do { next = ticker.find((x, i) => x.rank <= limit && !localStorag
 render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${x.replace(`<table>`, `<table class=header>`)}${x}`)(`<table>
 <thead>
   <tr class=blue style="font-size: .8rem; line-height: 1.3rem">
-    <td align=center> #
+    <td align=right> #
     <td align=left style="lettere-spacing: -.05rem"> COIN
     <td align=right> MCAP
     <td align=center> PRICE
     <!--td align=right style="padding: 0"> 1H-->
     <td align=right> 1D
-    <td align=right colspan=2> VOLUME1D<sup style="background: darkred; color: white">&Dagger;</sup>
+    <td align=right colspan=2> <span style="position: relative; left: .4rem">VOLUME.1D<sup style="background: darkred; color: white">&Dagger;</sup></span>
     <td align=right> 30D
     <td align=right> 1Y
     <td align=right> ATH
@@ -30,8 +30,8 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
     <!--td align=center style="padding: 0"> YR-->
 <tbody> ${ticker.slice(0, limit).map(x => `
   <tr class=main>
-    <td align=center><span style="font-size: .8rem"> ${x.rank}
-    <th align=left> ${aif(coin(x.id), c => c.development_status == "Working product" || c.development_status == "On-going development" || c.development_status == "Beta version" ?  `` : `<span style="text-decoration: line-through">`)}${aif(coin(x.id), c => c.open_source && c.org_structure == "Decentralized" ? `<span style="xfont-weight: bold">` : ``)}<span style="letter-spacing: ${x.symbol.length > 4 ? `-.1rem` : `0`}">${crop(x.symbol, 6)}</span></span><sub>${ethtokens.includes(x.symbol) ? signs["ETH"] : btctokens.includes(x.symbol) ? signs["BTC"] : othertokens.includes(x.symbol) ? "&Dagger;" : ""}${aif(coin(x.id), c => c.proof_type == "Not mineable" ? `` : c.proof_type.match(/work|pow/i) ? `` : c.proof_type.match(/stake|pos/i) ? `&sect;` : `*`)}</sub>
+    <td align=right><span style="font-size: .8rem"> ${x.rank}
+    <th align=left> ${aif(coin(x.id), c => c.development_status == "Working product" || c.development_status == "On-going development" || c.development_status == "Beta version" ?  `` : `<span style="text-decoration: line-through">`)}${aif(coin(x.id), c => c.open_source && c.org_structure == "Decentralized" ? `<span style="xfont-weight: bold">` : ``)}<span style="letter-spacing: ${x.symbol.length > 4 ? `-.1rem` : `0`}">${crop(x.symbol, 6)}</span></span><sub>${ethtokens.includes(x.symbol) ? signs["ETH"] : btctokens.includes(x.symbol) ? signs["BTC"] : othertokens.includes(x.symbol) ? "&dagger;" : ""}${aif(coin(x.id), c => c.proof_type == "Not mineable" ? `` : c.proof_type.match(/work|pow/i) ? `` : c.proof_type.match(/stake|pos/i) ? `&sect;` : `*`)}</sub>
     <td align=right> <span style="font-size: .8rem; color: white"> ${trim($(x.quotes.USD.market_cap))}
     <td align=right class=blue> ${$price(x.quotes.USD.price)}${order(x.quotes.USD.price) > 0 ? "" : "&nbsp;"}
     <!--td align=right style="padding: 0"> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_1h)}-->
@@ -59,12 +59,29 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
   `).join("")}
 `).join("")}
 <tfoot>
-  <tr class=blue>
-    <td colspan=5 align=center style="font-size: .8rem; line-height: 1.3rem">
-     &nbsp;${percent(ticker.slice(0, limit).filter(x => ethtokens.concat(btctokens, othertokens).includes(x.symbol)).length / limit)}&nbsp;tokens&nbsp;(${percent(ticker.slice(0, limit).filter(x => ethtokens.includes(x.symbol)).length / ticker.slice(0, limit).filter(x => ethtokens.concat(btctokens, othertokens).includes(x.symbol)).length)}&nbsp;ERC20)
-    <td colspan=12 align=center style="font-size: .8rem; line-height: 1.3rem"> via <a href=https://coinpaprika.com>coinpaprika.com</a>
-   <tr>
-    <td colspan=12 align=center style="background: darkred; color: white; font-size: .8rem; line-height: 1.3rem"> <sup>&Dagger;</sup>Assuming 95% fake volume &mdash; see <a href=https://t.co/DNw36VboPl style="color: inherit">t.co/DNw36VboPl</a>
+  <tr>
+     <td>
+    <td colspan=4 align=center style="font-size: .8rem; line-height: 1.3rem">
+     ${percent(ticker.slice(0, limit).filter(x => ethtokens.concat(btctokens, othertokens).includes(x.symbol)).length / limit)}&nbsp;tokens&nbsp;(${percent(ticker.slice(0, limit).filter(x => ethtokens.includes(x.symbol)).length / ticker.slice(0, limit).filter(x => ethtokens.concat(btctokens, othertokens).includes(x.symbol)).length)}&nbsp;ERC20)
+    <td colspan=6 align=center style="font-size: .8rem; line-height: 1.3rem"> via <a href=https://coinpaprika.com>coinpaprika.com</a>
+   <tr class=blue style="font-size: .8rem; line-height: 1.3rem">
+     <td colspan=1 align=right>₿
+     <td colspan=3> BTC/OMNI/XCP
+     <td colspan=1 align=right>&sect;
+     <td colspan=6> proof-of-stake
+  <tr class=blue style="font-size: .8rem; line-height: 1.3rem">
+     <td colspan=1 align=right>Ξ
+     <td colspan=3> ETH/ERC20
+     <td colspan=1 align=right>*
+     <td colspan=6> other consensus
+  <tr class=blue style="font-size: .8rem; line-height: 1.3rem">
+     <td colspan=1 align=right>&dagger;
+     <td colspan=3> other platform
+     <td colspan=1 align=right>&beta;
+     <td colspan=6> relative volatility
+   <tr style="background: darkred; color: white; font-size: .8rem; line-height: 1.3rem">
+    <td colspan=1 align=right> &Dagger;
+    <td colspan=10> Assuming 95% fake volume &mdash; see <a href=https://t.co/DNw36VboPl style="color: inherit">t.co/DNw36VboPl</a>
 </table>
 `).replace(/\+0%|\b0\.0%/g, ""))
 tokens = `ACT VEX
