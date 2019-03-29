@@ -78,7 +78,7 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
      <td colspan=6> Proof-of-stake (${percent(ticker.slice(0, limit).map(x => coin(x.id)).filter(x => !x.proof_type.match(/proof.of.work|pow/i) && x.proof_type.match(/delegated.proof.of.stake|dpos/i)).length / ticker.slice(0, limit).map(x => coin(x.id)).filter(x => !x.proof_type.match(/proof.of.work|pow/i) && x.proof_type.match(/proof.of.stake|pos/i)).length)} DPoS)
   <tr style="font-size: .8rem; line-height: 1.3rem">
      <td colspan=1 align=right>&dagger;
-     <td colspan=3> Other token platform
+     <td colspan=3> Other token platforms
      <td colspan=1 align=right>*
      <td colspan=6> Other consensus mechanism
  <tbody style="border-top: 1px solid #333">
