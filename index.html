@@ -3,8 +3,8 @@ limit=99, api="https://api.coinpaprika.com/v1", signs={ BTC: "₿", ETH: "Ξ" }
 specialpairs="LTCBTC XMRBTC ETHBTC MKRETH MKRBTC ETCETH ETCBTC ZECBTC DOGE_BTC BCHBTC BTSBTC DASH_BTC XEMBTC LSKETH LSKBTC BSVBTC DAI_USDT MAID_BTC USDCUSDT TUSDUSDT STEEM_BTC"
 if (location.search) location.href=location.href.replace(/\?.*/, "") </script>
 <style> @import url("https://fonts.googleapis.com/css?family=Fira+Mono:400,700"); html { font: 12pt/1.3 "Fira Mono", monospace; } @media (min-width: 768px) { html { font-size: 24pt; } } body { background: black; color: #999; margin: 0; }
-table { border-collapse: collapse; width: 100%; } td, th { padding: 0 .2rem; vertical-align: top; } th { color: white; font-weight: normal; } thead > * { border-top: 1px solid blue } tr.main > * { border-top: 1px solid #333 } tr:first-child > * { border-top: 0; } .header { position: fixed } .header tbody { visibility: hidden; pointer-events: none; }
-b { font-weight: inherit; color: white; } .extra b { color: inherit; } .extra span { font-size: .8rem; line-height: 1.3rem } sub { line-height: 0; font-size: .8rem; color: #999 } .gray, .gray * { color: #999 !important } .red { color: red } .green { color: #8f8 } .blue, .blue * { background: blue; color: white; border-color: blue !important } </style>
+table { border-collapse: collapse; width: 100%; } td, th { padding: 0 .2rem; vertical-align: top; } th { color: white; font-weight: normal; } thead > * { border-top: 1px solid blue } tr.main > * { border-top: 1px solid #333 } tr:first-child > * { border-top: 0; } .header { position: fixed; pointer-events: none; } .header tbody { visibility: hidden; pointer-events: none; }
+b { font-weight: inherit; color: white; } .extra b { color: inherit; } .extra span { font-size: .8rem; line-height: 1.3rem } sup, sub { line-height: 0; font-size: .8rem; } sub { color: #999 } .gray, .gray * { color: #999 !important } .red { color: red } .green { color: #8f8 } .blue, .blue * { background: blue; color: white; border-color: blue !important } </style>
 <body><script> small = document.body.offsetWidth < 500 && false
 extras = x => pairs.filter(y => y[0] == x).map(x => ticker.find(y => y.symbol == x[1])), coin = x => JSON.parse(localStorage[x] || "null")
 aif = (x, f) => x ? f(x) : ""
@@ -22,7 +22,7 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
     <td align=center> PRICE
     <!--td align=right style="padding: 0"> 1H-->
     <td align=right> 1D
-    <td align=right colspan=2> VOLUME1D
+    <td align=right colspan=2> VOLUME1D<sup style="background: red; color: white">*</sup>
     <td align=right> 30D
     <td align=right> 1Y
     <td align=right> ATH
@@ -36,7 +36,7 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
     <td align=right class=blue> ${$price(x.quotes.USD.price)}${order(x.quotes.USD.price) > 0 ? "" : "&nbsp;"}
     <!--td align=right style="padding: 0"> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_1h)}-->
     <td align=right> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_24h)}
-    <td align=right> <span style="font-size: .8rem; "> <b>${trim($(x.quotes.USD.volume_24h))}</b>
+    <td align=right> <span style="font-size: .8rem; "> <b>${trim($(x.quotes.USD.volume_24h * 0.05))}</b>
     <td align=right ${x.quotes.USD.volume_24h_change_24h > 1000 ? `style="background: red; color: white; border: none; padding-left: 0"` : `class=gray style="padding-left: 0"`}> <span style="font-size: .8rem"> ${change(x.quotes.USD.volume_24h_change_24h)}
     <td align=right> <span style="font-size: .8rem; ">${change(x.quotes.USD.percent_change_30d)}
     <td align=right> <span style="font-size: .8rem; "> ${x.quotes.USD.percent_change_1y == 0 ? `<div align=right>` : change(x.quotes.USD.percent_change_1y)}
@@ -62,7 +62,9 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
   <tr class=blue>
     <td colspan=5 align=center style="font-size: .8rem; line-height: 1.3rem">
      &nbsp;${percent(ticker.filter(x => ethtokens.concat(btctokens, othertokens).some(y => x.symbol == y)).length / ticker.length)}&nbsp;tokens&nbsp;(${percent(ethtokens.length / ethtokens.concat(btctokens, othertokens).length)}&nbsp;ETH)
-    <td colspan=7 align=center style="font-size: .8rem; line-height: 1.3rem"> via&nbsp;coinpaprika.com
+    <td colspan=12 align=center style="font-size: .8rem; line-height: 1.3rem"> via <a href=https://coinpaprika.com>coinpaprika.com</a>
+   <tr>
+    <td colspan=12 align=center style="background: red; color: white; font-size: .8rem; line-height: 1.3rem"> <sup>*</sup>Volume scaled down by 20x &mdash; see <a href=https://t.co/DNw36VboPl style="color: inherit">https://t.co/DNw36VboPl</a>
 </table>
 `).replace(/\+0%|\b0\.0%/g, ""))
 tokens = `ACT VEX
