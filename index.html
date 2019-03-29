@@ -33,7 +33,7 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
     <td align=right><span style="font-size: .8rem"> ${x.rank}
     <th align=left> ${aif(coin(x.id), c => c.development_status == "Working product" || c.development_status == "On-going development" || c.development_status == "Beta version" ?  `` : `<span style="text-decoration: line-through">`)}${aif(coin(x.id), c => c.open_source && c.org_structure == "Decentralized" ? `<span style="xfont-weight: bold">` : ``)}<span style="letter-spacing: ${x.symbol.length > 4 ? `-.1rem` : `0`}">${crop(x.symbol, 6)}</span></span><sub>${ethtokens.includes(x.symbol) ? signs["ETH"] : btctokens.includes(x.symbol) ? signs["BTC"] : othertokens.includes(x.symbol) ? "&dagger;" : ""}${aif(coin(x.id), c => c.proof_type == "Not mineable" ? `` : c.proof_type.match(/work|pow/i) ? `` : c.proof_type.match(/stake|pos/i) ? `&sect;` : `*`)}</sub>
     <td align=right> <span style="font-size: .8rem; color: white"> ${trim($(x.quotes.USD.market_cap))}
-    <td align=right class=blue> ${$price(x.quotes.USD.price)}${order(x.quotes.USD.price) > 0 ? "" : "&nbsp;"}
+    <td align=right class=blue> ${trim($price(x.quotes.USD.price))}<!--${order(x.quotes.USD.price) > 0 ? "" : "&nbsp;"}-->
     <!--td align=right style="padding: 0"> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_1h)}-->
     <td align=right> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_24h)}
     <td align=right> <span style="font-size: .8rem; "> <b>${trim($(x.quotes.USD.volume_24h * 0.05))}</b>
@@ -68,19 +68,19 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
   <tbody style="background: #222">
    <tr style="font-size: .8rem; line-height: 1.3rem">
      <td colspan=1 align=right>₿
-     <td colspan=3> BTC or OMNI/XCP
-     <td colspan=1 align=right>&sect;
-     <td colspan=6> Proof-of-stake
+     <td colspan=3> BTC or OMNI/XCP token
+     <td colspan=1 align=right>&beta;
+     <td colspan=6> Relative price volatility
   <tr  style="font-size: .8rem; line-height: 1.3rem">
      <td colspan=1 align=right>Ξ
-     <td colspan=3> ETH or ERC20
-     <td colspan=1 align=right>*
-     <td colspan=6> Other consensus
+     <td colspan=3> ETH or ERC20 token
+     <td colspan=1 align=right>&sect;
+     <td colspan=6> Proof-of-stake (${percent(ticker.slice(0, limit).map(x => coin(x.id)).filter(x => !x.proof_type.match(/proof.of.work|pow/i) && x.proof_type.match(/delegated.proof.of.stake|dpos/i)).length / ticker.slice(0, limit).map(x => coin(x.id)).filter(x => !x.proof_type.match(/proof.of.work|pow/i) && x.proof_type.match(/proof.of.stake|pos/i)).length)} DPoS)
   <tr style="font-size: .8rem; line-height: 1.3rem">
      <td colspan=1 align=right>&dagger;
-     <td colspan=3> Other platform
-     <td colspan=1 align=right>&beta;
-     <td colspan=6> Relative volatility
+     <td colspan=3> Other token platform
+     <td colspan=1 align=right>*
+     <td colspan=6> Other consensus system
  <tbody>
    <tr style="background: darkred; color: white; font-size: .8rem; line-height: 1.3rem">
     <td colspan=1 align=right> &Dagger;
