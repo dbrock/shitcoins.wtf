@@ -58,14 +58,14 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
       <td colspan=2><!--span style="font-size: .8rem; font-family: sans-serif">vs&nbsp;${y.symbol}-->
   `).join("")}
 `).join("")}
-<tbody>
-  <tr style="font-size: .8rem; line-height: 1.3rem; background: #111">
+<tbody style="border-top: 1px solid #333">
+  <tr style="font-size: .8rem; line-height: 1.3rem" class=blue>
     <td><td>
     <td colspan=1 align=right>
      ${percent(ticker.slice(0, limit).filter(x => ethtokens.concat(btctokens, othertokens).includes(x.symbol)).length / limit)}
-     <td colspan=3 align=left>tokens&nbsp;(${percent(ticker.slice(0, limit).filter(x => ethtokens.includes(x.symbol)).length / ticker.slice(0, limit).filter(x => ethtokens.concat(btctokens, othertokens).includes(x.symbol)).length)}&nbsp;ERC20)
+     <td colspan=3 align=left>tokens&nbsp;(${percent(ticker.slice(0, limit).filter(x => ethtokens.includes(x.symbol)).length / ticker.slice(0, limit).filter(x => ethtokens.concat(btctokens, othertokens).includes(x.symbol)).length)}&nbsp;Ethereum)
     <td colspan=5 align=right> via <a href=https://coinpaprika.com>coinpaprika.com</a>
-  <tbody style="background: #222">
+  <tbody style="border-top: 1px solid #333; background: #222">
    <tr style="font-size: .8rem; line-height: 1.3rem">
      <td colspan=1 align=right>₿
      <td colspan=3> BTC or OMNI/XCP token
@@ -73,15 +73,15 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
      <td colspan=6> Relative price volatility
   <tr  style="font-size: .8rem; line-height: 1.3rem">
      <td colspan=1 align=right>Ξ
-     <td colspan=3> ETH or ERC20 token
+     <td colspan=3> ETH or Ethereum token
      <td colspan=1 align=right>&sect;
      <td colspan=6> Proof-of-stake (${percent(ticker.slice(0, limit).map(x => coin(x.id)).filter(x => !x.proof_type.match(/proof.of.work|pow/i) && x.proof_type.match(/delegated.proof.of.stake|dpos/i)).length / ticker.slice(0, limit).map(x => coin(x.id)).filter(x => !x.proof_type.match(/proof.of.work|pow/i) && x.proof_type.match(/proof.of.stake|pos/i)).length)} DPoS)
   <tr style="font-size: .8rem; line-height: 1.3rem">
      <td colspan=1 align=right>&dagger;
      <td colspan=3> Other token platform
      <td colspan=1 align=right>*
-     <td colspan=6> Other consensus system
- <tbody>
+     <td colspan=6> Other consensus mechanism
+ <tbody style="border-top: 1px solid #333">
    <tr style="background: darkred; color: white; font-size: .8rem; line-height: 1.3rem">
     <td colspan=1 align=right> &Dagger;
     <td colspan=10> Assuming 95% fake volume &mdash; see <a href=https://t.co/DNw36VboPl style="color: inherit">t.co/DNw36VboPl</a>
