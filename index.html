@@ -33,7 +33,7 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
     <td align=right><span style="font-size: .8rem"> ${x.rank}
     <th align=left> ${aif(coin(x.id), c => c.development_status == "Working product" || c.development_status == "On-going development" || c.development_status == "Beta version" ?  `` : `<span style="text-decoration: line-through">`)}${aif(coin(x.id), c => c.open_source && c.org_structure == "Decentralized" ? `<span style="xfont-weight: bold">` : ``)}<span style="letter-spacing: ${x.symbol.length > 4 ? `-.1rem` : `0`}">${crop(x.symbol, 6)}</span></span><sub>${ethtokens.includes(x.symbol) ? signs["ETH"] : btctokens.includes(x.symbol) ? signs["BTC"] : othertokens.includes(x.symbol) ? "&dagger;" : ""}${aif(coin(x.id), c => c.proof_type == "Not mineable" ? `` : c.proof_type.match(/work|pow/i) ? `` : c.proof_type.match(/stake|pos/i) ? `&sect;` : `*`)}</sub>
     <td align=right> <span style="font-size: .8rem; color: white"> ${trim($(x.quotes.USD.market_cap))}
-    <td align=right class=blue> ${trim($price(x.quotes.USD.price))}<!--${order(x.quotes.USD.price) > 0 ? "" : "&nbsp;"}-->
+    <td align=right class=blue> ${$price(x.quotes.USD.price)}${order(x.quotes.USD.price) > 0 ? "" : "&nbsp;"}
     <!--td align=right style="padding: 0"> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_1h)}-->
     <td align=right> <span style="font-size: .8rem; "> ${change(x.quotes.USD.percent_change_24h)}
     <td align=right> <span style="font-size: .8rem; "> <b>${trim($(x.quotes.USD.volume_24h * 0.05))}</b>
