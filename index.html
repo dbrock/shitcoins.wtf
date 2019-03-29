@@ -59,13 +59,13 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
   `).join("")}
 `).join("")}
 <tbody style="border-top: 1px solid #333">
-  <tr style="font-size: .8rem; line-height: 1.3rem" class=blue>
+  <tr style="font-size: .8rem; line-height: 1.3rem" >
     <td><td>
     <td colspan=1 align=right>
      ${percent(ticker.slice(0, limit).filter(x => ethtokens.concat(btctokens, othertokens).includes(x.symbol)).length / limit)}
      <td colspan=3 align=left>tokens&nbsp;(${percent(ticker.slice(0, limit).filter(x => ethtokens.includes(x.symbol)).length / ticker.slice(0, limit).filter(x => ethtokens.concat(btctokens, othertokens).includes(x.symbol)).length)}&nbsp;Ethereum)
     <td colspan=5 align=right> via <a href=https://coinpaprika.com>coinpaprika.com</a>
-  <tbody style="border-top: 1px solid #333; background: #222">
+  <tbody style="border-top: 1px solid #333; backgrouend: #222">
    <tr style="font-size: .8rem; line-height: 1.3rem">
      <td colspan=1 align=right>₿
      <td colspan=3> BTC or OMNI/XCP token
