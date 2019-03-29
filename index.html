@@ -61,7 +61,7 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
 <tfoot>
   <tr class=blue>
     <td colspan=5 align=center style="font-size: .8rem; line-height: 1.3rem">
-     &nbsp;${percent(ticker.filter(x => ethtokens.concat(btctokens, othertokens).some(y => x.symbol == y)).length / ticker.length)}&nbsp;tokens&nbsp;(${percent(ethtokens.length / ethtokens.concat(btctokens, othertokens).length)}&nbsp;ETH)
+     &nbsp;${percent(ticker.slice(0, limit).filter(x => ethtokens.concat(btctokens, othertokens).includes(x.symbol)).length / limit)}&nbsp;tokens&nbsp;(${percent(ticker.slice(0, limit).filter(x => ethtokens.includes(x.symbol)).length / ticker.slice(0, limit).filter(x => ethtokens.concat(btctokens, othertokens).includes(x.symbol)).length)}&nbsp;ERC20)
     <td colspan=12 align=center style="font-size: .8rem; line-height: 1.3rem"> via <a href=https://coinpaprika.com>coinpaprika.com</a>
    <tr>
     <td colspan=12 align=center style="background: darkred; color: white; font-size: .8rem; line-height: 1.3rem"> <sup>&Dagger;</sup>Assuming 95% fake volume &mdash; see <a href=https://t.co/DNw36VboPl style="color: inherit">t.co/DNw36VboPl</a>
