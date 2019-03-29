@@ -40,7 +40,7 @@ render = () => document.body.innerHTML = (console.log("Rendering..."), (x => `${
     <td align=right ${x.quotes.USD.volume_24h_change_24h > 1000 ? `style="background: red; color: white; border: none; padding-left: 0"` : `class=gray style="padding-left: 0"`}> <span style="font-size: .8rem"> ${change(x.quotes.USD.volume_24h_change_24h)}
     <td align=right> <span style="font-size: .8rem; ">${change(x.quotes.USD.percent_change_30d)}
     <td align=right> <span style="font-size: .8rem; "> ${x.quotes.USD.percent_change_1y == 0 ? `<div align=right>` : change(x.quotes.USD.percent_change_1y)}
-    <td align=right class=gray> <span style="font-size: .8rem; "> ${x.quotes.USD.percent_from_price_ath == 100 ? `ATH` : `${Math.round(x.quotes.USD.percent_from_price_ath)}%`.replace(/-/, "&minus;")}
+    <td align=right class=gray> <span style="font-size: .8rem; "> ${x.quotes.USD.percent_from_price_ath == 100 ? `ATH` : `${Math.round(100 + x.quotes.USD.percent_from_price_ath)}%`}
     <td align=center> <span style="font-size: .8rem; letter-spacing: -.1rem"> ${x.beta_value.toFixed(1).replace(/^-0/, `0`)}
     <!--td align=center> ${aif(coin(x.id), c => `<span style="font-size: .8rem; "> ${c.started_at ? `${Math.floor((new Date - new Date(c.started_at)) / (1000 * 60 * 60 * 24 * 365))}`.replace(/^0$/, ``) : ``}</span>`)}-->
   ${extras(x.symbol).map((y, i) => `
