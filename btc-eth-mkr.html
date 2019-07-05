@@ -1,0 +1,10 @@
+<!doctype html>
+<html style="height: 100%; display: flex; justify-content: center">
+<meta name=viewport content=width=device-width>
+<body style="font: bold 32pt monospace; align-self: center">
+<script>
+grab = fetch("https://api.coinmarketcap.com/v1/ticker/").then(x => x.json())
+take = x => x.filter(y => ["BTC", "ETH", "MKR"].includes(y.symbol))
+make = x => x.map(x => `${x.price_usd}`.substr(0, 2)).join(" ")
+grab.then(take).then(make).then(x => document.body.innerHTML = x)
+</script>
