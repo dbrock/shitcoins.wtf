@@ -1,0 +1,53 @@
+<!doctype html>
+<meta charset=utf-8>
+<meta name=viewport content=width=device-width>
+<style>
+  html, body { height: 100%; background: black }
+  body { margin: 0; display: flex; align-items: center; justify-content: center }
+</style>
+<script>
+  API = `https://api.coinpaprika.com/v1`
+  coin = location.search.substring(1) || `btc-bitcoin`
+  todate = x => new Date(x).toISOString().replace(/T.*/, ``)
+  start = todate(+new Date().setFullYear(new Date().getFullYear() - 1) + 60 * 60 * 24 * 1000)
+
+  fetch(
+    `${API}/coins/${coin}/ohlcv/historical?start=${start}&limit=366`
+  ).then(x => x.json()).then(async json => {
+    console.log(json.length)
+    json = json.slice(-150)
+    canvas = document.createElement(`canvas`)
+    canvas.width = innerWidth
+    canvas.height = innerHeight
+    document.body.append(canvas)
+    context = canvas.getContext(`2d`)
+    context.fillStyle = `black`
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    max = Math.max(...json.map(x => x.high))
+
+    whole = Math.floor(canvas.width / json.length)
+    wp = Math.floor(whole * 0.2)
+    w = whole - wp * 2
+
+    for (let i = 0; i < json.length; i++) {
+      let d = json[i].close - json[i].open
+      let x = (w + wp * 2) * i + wp
+      let y = canvas.height * (1 - Math.min(json[i].open, json[i].close) / max)
+      let y_ = canvas.height * (1 - json[i].low / max)
+      let h_ = -canvas.height * (json[i].high - json[i].low) / max
+      let h = -canvas.height * Math.abs(d) / max
+
+      if (d >= 0) {
+        context.strokeStyle = `#8f8`
+        context.fillStyle = `black`
+      } else {
+        context.strokeStyle = `red`
+        context.fillStyle = `red`
+      }
+
+      context.strokeRect(Math.floor(x + w / 2), Math.floor(y_), 0, Math.floor(h_))
+      context.fillRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h))
+      context.strokeRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h))
+    }
+  })
+</script>
