@@ -16,17 +16,22 @@
   tomonth = x => new Date(x).toLocaleString(`default`, { month: `long` })
   wget = async x => (await fetch(x)).json()
 
-  API = `https://api.coinpaprika.com/v1`
+  CPAPI = `https://api.coinpaprika.com/v1`
+  CGAPI = `https://api.coingecko.com/api/v3`
   start = todate(new Date(new Date().setUTCMonth(-6, 1)).setUTCHours(0, 0, 0))
   symbol = location.search.substring(1) || `btc`
   pen = graph.getContext(`2d`)
 
   Promise.resolve().then(async () => {
     if (location.search || location.hostname != `localhost`) {
-      coin = (await wget(`${API}/coins`))
+      coin = (await wget(`${CPAPI}/coins`))
         .filter(y => lc(y.symbol) == lc(symbol))
         .sort((x, y) => y.rank - x.rank)[0].id
-      url = `${API}/coins/${coin}/ohlcv/historical?start=${start}&limit=366`
+      url = `${CPAPI}/coins/${coin}/ohlcv/historical?start=${start}&limit=366`
+      cgcoin = (await wget(`${CGAPI}/coins/list`))
+        .filter(y => lc(y.symbol) == lc(symbol))
+        .sort((x, y) => y.rank - x.rank)[0].id
+      cgcoindata = await wget(`${CGAPI}/coins/${cgcoin}?market_data=true`)
     } else {
       url = `bitcoin.json`
     }
@@ -47,7 +52,7 @@
     pen.fillStyle = `black`
     pen.fillRect(0, 0, W, H)
 
-    Ω = max(...data.map(x => x.high))           // highest value
+    Ω = max(cgcoindata.market_data.ath.usd, ...data.map(x => x.high))
     tick = pow(10, floor(log10(Ω / 4.5)))
 
     for (let a = 0; a < Ω; a += tick) {
