@@ -23,9 +23,9 @@
 
   Promise.resolve().then(async () => {
     if (location.search || location.hostname != `localhost`) {
-      coin = (await wget(`${API}/coins`)).filter(
-        y => lc(y.symbol) == lc(symbol)
-      ).sort((x, y) => y.rank - x.rank)[0].id
+      coin = (await wget(`${API}/coins`))
+        .filter(y => lc(y.symbol) == lc(symbol))
+        .sort((x, y) => y.rank - x.rank)[0].id
       url = `${API}/coins/${coin}/ohlcv/historical?start=${start}&limit=366`
     } else {
       url = `bitcoin.json`
@@ -37,62 +37,56 @@
   })
 
   draw = () => {
-    gw = innerWidth
-    gh = innerHeight
-    graph.width = gw * dpr
-    graph.height = gh * dpr
-    graph.style.width = `${gw}px`
-    graph.style.height = `${gh}px`
-
+    W = innerWidth
+    H = innerHeight
+    graph.width = W * dpr
+    graph.height = H * dpr
+    graph.style.width = `${W}px`
+    graph.style.height = `${H}px`
     pen.scale(dpr, dpr)
     pen.fillStyle = `black`
-    pen.fillRect(0, 0, gw, gh)
+    pen.fillRect(0, 0, W, H)
 
-    maxhigh = max(...data.map(x => x.high))
+    Ω = max(...data.map(x => x.high))           // highest value
+    tick = pow(10, floor(log10(Ω / 4.5)))
 
-    let tick = pow(10, floor(log10(maxhigh / 4.5)))
-
-    for (let y = 0; y < maxhigh; y += tick) {
-      let ly = gh * (1 - y / maxhigh)
+    for (let a = 0; a < Ω; a += tick) {
+      let y = H * (1 - a / Ω)
       pen.save()
       pen.strokeStyle = `#333`
       pen.fillStyle = `#666`
       pen.setLineDash([1, 5])
-      pen.strokeRect(0, ly, gw, 0)
+      pen.strokeRect(0, y, W, 0)
       pen.font = `10px Menlo, monospace`
-      pen.fillText(`$${y.toLocaleString(
+      pen.fillText(`$${a.toLocaleString(
         `default`, { notation: `compact` }
-      ).replace(`K`, `k`)}`, 5, ly - 5)
+      ).replace(`K`, `k`)}`, 5, y - 5)
       pen.restore()
     }
 
-    whole = floor(gw / data.length)
-    w = floor(whole * 0.3) * 2 + 1
-    wp = whole - w
+    dw = floor(W / data.length)                 // day width
+    bw = floor(dw / 3) * 2 + 1                  // box width
 
     for (let i = 0; i < data.length; i++) {
       let { open, close, low, high, time_open } = data[i]
-      let d = close - open
-      let x = whole * i + wp
-      let y = gh * (1 - min(open, close) / maxhigh)
-      let y_ = gh * (1 - low / maxhigh)
-      let h_ = -gh * (high - low) / maxhigh
-      let h = -gh * abs(d) / maxhigh
+      let bx = dw * i + dw - bw                 // box x
+      let by = H * (1 - min(open, close) / Ω)   // box y
+      let bh = H * abs(close - open) / Ω        // box height
+      let ly = H * (1 - low / Ω)                // line y
+      let lh = H * (high - low) / Ω             // line height
 
       if (time_open.replace(/.*(..)T.*/, `$1`) == `01`) {
         pen.save()
         pen.strokeStyle = `#333`
         pen.fillStyle = `#666`
         pen.setLineDash([1, 5])
-        let tx = whole * (i + 12)
-        let lx = x - floor(wp / 2) - 0.5
-        if (i) pen.strokeRect(lx, 0, 0, gh)
+        pen.strokeRect(bx - floor((dw - bw) / 2) - .5, 0, 0, H)
         pen.font = `10px Menlo, monospace`
-        pen.fillText(tomonth(time_open), tx, 10)
+        pen.fillText(tomonth(time_open), dw * (i + 12), 10)
         pen.restore()
       }
 
-      if (d >= 0) {
+      if (close >= open) {
         pen.strokeStyle = `#8f8`
         pen.fillStyle = `black`
       } else {
@@ -100,9 +94,9 @@
         pen.fillStyle = `red`
       }
 
-      pen.strokeRect(x + w / 2, y_, 0, h_)
-      pen.fillRect(x, y, w, h)
-      pen.strokeRect(x - 0.5, y - 0.5, w, h)
+      pen.strokeRect(bx + bw / 2, ly, 0, -lh)
+      pen.fillRect(bx, by, bw, -bh)
+      pen.strokeRect(bx - .5, by - .5, bw, -bh)
     }
   }
 </script>
