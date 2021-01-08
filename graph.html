@@ -30,7 +30,7 @@
       url = `bitcoin.json`
     }
 
-    json = await wget(url)
+    data = await wget(url)
     draw()
     onresize = draw
   })
@@ -50,12 +50,12 @@
     context.fillStyle = `black`
     context.fillRect(0, 0, gw, gh)
 
-    high = max(...json.map(x => x.high))
+    maxhigh = max(...data.map(x => x.high))
 
-    let tick = pow(10, floor(log10(high / 4.5)))
+    let tick = pow(10, floor(log10(maxhigh / 4.5)))
 
-    for (let y = 0; y < high; y += tick) {
-      let ly = gh * (1 - y / high)
+    for (let y = 0; y < maxhigh; y += tick) {
+      let ly = gh * (1 - y / maxhigh)
       context.save()
       context.strokeStyle = `#333`
       context.fillStyle = `#666`
@@ -68,19 +68,20 @@
       context.restore()
     }
 
-    whole = floor(gw / json.length)
+    whole = floor(gw / data.length)
     w = floor(whole * 0.3) * 2 + 1
     wp = whole - w
 
-    for (let i = 0; i < json.length; i++) {
-      let d = json[i].close - json[i].open
+    for (let i = 0; i < data.length; i++) {
+      let { open, close, low, high, time_open } = data[i]
+      let d = close - open
       let x = whole * i + wp
-      let y = gh * (1 - min(json[i].open, json[i].close) / high)
-      let y_ = gh * (1 - json[i].low / high)
-      let h_ = -gh * (json[i].high - json[i].low) / high
-      let h = -gh * abs(d) / high
+      let y = gh * (1 - min(open, close) / maxhigh)
+      let y_ = gh * (1 - low / maxhigh)
+      let h_ = -gh * (high - low) / maxhigh
+      let h = -gh * abs(d) / maxhigh
 
-      if (json[i].time_open.replace(/.*(..)T.*/, `$1`) == `01`) {
+      if (time_open.replace(/.*(..)T.*/, `$1`) == `01`) {
         context.save()
         context.strokeStyle = `#333`
         context.fillStyle = `#666`
@@ -89,7 +90,7 @@
         let lx = x - floor(wp / 2) - 0.5
         if (i) context.strokeRect(lx, 0, 0, gh)
         context.font = `10px Menlo, monospace`
-        context.fillText(tomonth(json[i].time_open), tx, 10)
+        context.fillText(tomonth(time_open), tx, 10)
         context.restore()
       }
 
