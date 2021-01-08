@@ -41,7 +41,7 @@
 
     max = Math.max(...json.map(x => x.high))
 
-    let tick = Math.pow(10, Math.floor(Math.log10(max / 5)))
+    let tick = Math.pow(10, Math.floor(Math.log10(max / 4)))
 
     for (let y = 0; y < max; y += tick) {
       let ly = gh * (1 - y / max)
@@ -51,7 +51,9 @@
       context.setLineDash([1, 5])
       context.strokeRect(0, ly, gw, 0)
       context.font = `10px Menlo, monospace`
-      context.fillText(`${y}`.replace(/000$/, `k`), 5, ly - 5)
+      context.fillText(`$${y.toLocaleString(
+        `default`, { notation: `compact` }
+      ).replace(`K`, `k`)}`, 5, ly - 5)
       context.restore()
     }
 
