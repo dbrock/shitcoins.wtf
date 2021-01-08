@@ -10,21 +10,27 @@
 </style>
 <script>
   API = `https://api.coinpaprika.com/v1`
-  coin = location.search.substring(1) || `btc-bitcoin`
   todate = x => new Date(x).toISOString().replace(/T.*/, ``)
   tomonth = x => new Date(x).toLocaleString(`default`, { month: `long` })
   start = todate(new Date(new Date().setUTCMonth(-6, 1)).setUTCHours(0, 0, 0))
-  url = `${API}/coins/${coin}/ohlcv/historical?start=${start}&limit=366`
   dpr = devicePixelRatio
+  lc = x => x.toLowerCase()
 
-  fetch(url).then(async x => {
-    json = await x.json()
-    ;(onresize = () => {
-      draw_graph()
-    })()
+  symbol = location.search.substring(1) || `btc`
+
+  fetch(`${API}/coins`).then(async x => {
+    coins = await x.json()
+    coin = coins.filter(
+      y => lc(y.symbol) == lc(symbol)
+    ).sort((x, y) => y.rank - x.rank)[0].id
+    json = await (await fetch(
+      `${API}/coins/${coin}/ohlcv/historical?start=${start}&limit=366`
+    )).json()
+    draw()
+    onresize = draw
   })
 
-  draw_graph = () => {
+  draw = () => {
     gw = innerWidth
     gh = innerHeight
     graph.width = gw * dpr
