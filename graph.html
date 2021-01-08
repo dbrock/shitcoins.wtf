@@ -19,6 +19,7 @@
   API = `https://api.coinpaprika.com/v1`
   start = todate(new Date(new Date().setUTCMonth(-6, 1)).setUTCHours(0, 0, 0))
   symbol = location.search.substring(1) || `btc`
+  pen = graph.getContext(`2d`)
 
   Promise.resolve().then(async () => {
     if (location.search || location.hostname != `localhost`) {
@@ -43,12 +44,9 @@
     graph.style.width = `${gw}px`
     graph.style.height = `${gh}px`
 
-    let context = graph.getContext(`2d`)
-
-    context.scale(dpr, dpr)
-
-    context.fillStyle = `black`
-    context.fillRect(0, 0, gw, gh)
+    pen.scale(dpr, dpr)
+    pen.fillStyle = `black`
+    pen.fillRect(0, 0, gw, gh)
 
     maxhigh = max(...data.map(x => x.high))
 
@@ -56,16 +54,16 @@
 
     for (let y = 0; y < maxhigh; y += tick) {
       let ly = gh * (1 - y / maxhigh)
-      context.save()
-      context.strokeStyle = `#333`
-      context.fillStyle = `#666`
-      context.setLineDash([1, 5])
-      context.strokeRect(0, ly, gw, 0)
-      context.font = `10px Menlo, monospace`
-      context.fillText(`$${y.toLocaleString(
+      pen.save()
+      pen.strokeStyle = `#333`
+      pen.fillStyle = `#666`
+      pen.setLineDash([1, 5])
+      pen.strokeRect(0, ly, gw, 0)
+      pen.font = `10px Menlo, monospace`
+      pen.fillText(`$${y.toLocaleString(
         `default`, { notation: `compact` }
       ).replace(`K`, `k`)}`, 5, ly - 5)
-      context.restore()
+      pen.restore()
     }
 
     whole = floor(gw / data.length)
@@ -82,29 +80,29 @@
       let h = -gh * abs(d) / maxhigh
 
       if (time_open.replace(/.*(..)T.*/, `$1`) == `01`) {
-        context.save()
-        context.strokeStyle = `#333`
-        context.fillStyle = `#666`
-        context.setLineDash([1, 5])
+        pen.save()
+        pen.strokeStyle = `#333`
+        pen.fillStyle = `#666`
+        pen.setLineDash([1, 5])
         let tx = whole * (i + 12)
         let lx = x - floor(wp / 2) - 0.5
-        if (i) context.strokeRect(lx, 0, 0, gh)
-        context.font = `10px Menlo, monospace`
-        context.fillText(tomonth(time_open), tx, 10)
-        context.restore()
+        if (i) pen.strokeRect(lx, 0, 0, gh)
+        pen.font = `10px Menlo, monospace`
+        pen.fillText(tomonth(time_open), tx, 10)
+        pen.restore()
       }
 
       if (d >= 0) {
-        context.strokeStyle = `#8f8`
-        context.fillStyle = `black`
+        pen.strokeStyle = `#8f8`
+        pen.fillStyle = `black`
       } else {
-        context.strokeStyle = `red`
-        context.fillStyle = `red`
+        pen.strokeStyle = `red`
+        pen.fillStyle = `red`
       }
 
-      context.strokeRect(x + w / 2, y_, 0, h_)
-      context.fillRect(x, y, w, h)
-      context.strokeRect(x - 0.5, y - 0.5, w, h)
+      pen.strokeRect(x + w / 2, y_, 0, h_)
+      pen.fillRect(x, y, w, h)
+      pen.strokeRect(x - 0.5, y - 0.5, w, h)
     }
   }
 </script>
