@@ -1,41 +1,84 @@
 <!doctype html>
 <meta charset=utf-8>
 <meta name=viewport content=width=device-width>
+<canvas id=graph></canvas>
 <style>
-  html, body { height: 100%; background: black }
-  body { margin: 0; display: flex; align-items: center; justify-content: center }
+  * { margin: 0 }
+  html, body { height: 100% }
+  html { background: black; font-size: 16px; line-height: 20px }
+  body { display: flex; align-items: center; justify-content: center }
 </style>
 <script>
   API = `https://api.coinpaprika.com/v1`
   coin = location.search.substring(1) || `btc-bitcoin`
   todate = x => new Date(x).toISOString().replace(/T.*/, ``)
-  start = todate(+new Date().setFullYear(new Date().getFullYear() - 1) + 60 * 60 * 24 * 1000)
+  tomonth = x => new Date(x).toLocaleString(`default`, { month: `long` })
+  start = todate(new Date(new Date().setUTCMonth(-6, 1)).setUTCHours(0, 0, 0))
+  url = `${API}/coins/${coin}/ohlcv/historical?start=${start}&limit=366`
+  dpr = devicePixelRatio
 
-  fetch(
-    `${API}/coins/${coin}/ohlcv/historical?start=${start}&limit=366`
-  ).then(x => x.json()).then(async json => {
-    console.log(json.length)
-    json = json.slice(-150)
-    canvas = document.createElement(`canvas`)
-    canvas.width = innerWidth
-    canvas.height = innerHeight
-    document.body.append(canvas)
-    context = canvas.getContext(`2d`)
+  fetch(url).then(async x => {
+    json = await x.json()
+    ;(onresize = () => {
+      draw_graph()
+    })()
+  })
+
+  draw_graph = () => {
+    gw = innerWidth
+    gh = innerHeight
+    graph.width = gw * dpr
+    graph.height = gh * dpr
+    graph.style.width = `${gw}px`
+    graph.style.height = `${gh}px`
+
+    let context = graph.getContext(`2d`)
+
+    context.scale(dpr, dpr)
+
     context.fillStyle = `black`
-    context.fillRect(0, 0, canvas.width, canvas.height)
+    context.fillRect(0, 0, gw, gh)
+
     max = Math.max(...json.map(x => x.high))
 
-    whole = Math.floor(canvas.width / json.length)
-    wp = Math.floor(whole * 0.2)
-    w = whole - wp * 2
+    let tick = Math.pow(10, Math.floor(Math.log10(max / 5)))
+
+    for (let y = 0; y < max; y += tick) {
+      let ly = gh * (1 - y / max)
+      context.save()
+      context.strokeStyle = `#333`
+      context.fillStyle = `#666`
+      context.setLineDash([1, 5])
+      context.strokeRect(0, ly, gw, 0)
+      context.font = `10px Menlo, monospace`
+      context.fillText(`${y}`.replace(/000$/, `k`), 5, ly - 5)
+      context.restore()
+    }
+
+    whole = Math.floor(gw / json.length)
+    w = Math.floor(whole * 0.3) * 2 + 1
+    wp = whole - w
 
     for (let i = 0; i < json.length; i++) {
       let d = json[i].close - json[i].open
-      let x = (w + wp * 2) * i + wp
-      let y = canvas.height * (1 - Math.min(json[i].open, json[i].close) / max)
-      let y_ = canvas.height * (1 - json[i].low / max)
-      let h_ = -canvas.height * (json[i].high - json[i].low) / max
-      let h = -canvas.height * Math.abs(d) / max
+      let x = whole * i + wp
+      let y = gh * (1 - Math.min(json[i].open, json[i].close) / max)
+      let y_ = gh * (1 - json[i].low / max)
+      let h_ = -gh * (json[i].high - json[i].low) / max
+      let h = -gh * Math.abs(d) / max
+
+      if (json[i].time_open.replace(/.*(..)T.*/, `$1`) == `01`) {
+        context.save()
+        context.strokeStyle = `#333`
+        context.fillStyle = `#666`
+        context.setLineDash([1, 5])
+        let tx = whole * (i + 12)
+        let lx = x - Math.floor(wp / 2) - 0.5
+        if (i) context.strokeRect(lx, 0, 0, gh)
+        context.font = `10px Menlo, monospace`
+        context.fillText(tomonth(json[i].time_open), tx, 10)
+        context.restore()
+      }
 
       if (d >= 0) {
         context.strokeStyle = `#8f8`
@@ -45,9 +88,9 @@
         context.fillStyle = `red`
       }
 
-      context.strokeRect(Math.floor(x + w / 2), Math.floor(y_), 0, Math.floor(h_))
-      context.fillRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h))
-      context.strokeRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h))
+      context.strokeRect(x + w / 2, y_, 0, h_)
+      context.fillRect(x, y, w, h)
+      context.strokeRect(x - 0.5, y - 0.5, w, h)
     }
-  })
+  }
 </script>
