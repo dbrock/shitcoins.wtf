@@ -53,7 +53,7 @@
     pen.fillRect(0, 0, W, H)
 
     Ω = max(...data.map(x => x.high))
-    Ω = min(cgcoindata.market_data.ath.usd, Ω * 10)
+    Ω = min(cgcoindata.market_data.ath.usd, Ω * 5)
     tick = pow(10, floor(log10(Ω / 4.5)))
 
     for (let a = 0; a < Ω; a += tick) {
