@@ -47,7 +47,7 @@
 
     max = Math.max(...json.map(x => x.high))
 
-    let tick = Math.pow(10, Math.floor(Math.log10(max / 4)))
+    let tick = Math.pow(10, Math.floor(Math.log10(max / 4.5)))
 
     for (let y = 0; y < max; y += tick) {
       let ly = gh * (1 - y / max)
