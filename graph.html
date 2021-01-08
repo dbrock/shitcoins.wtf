@@ -9,23 +9,28 @@
   body { display: flex; align-items: center; justify-content: center }
 </style>
 <script>
-  API = `https://api.coinpaprika.com/v1`
-  todate = x => new Date(x).toISOString().replace(/T.*/, ``)
-  tomonth = x => new Date(x).toLocaleString(`default`, { month: `long` })
-  start = todate(new Date(new Date().setUTCMonth(-6, 1)).setUTCHours(0, 0, 0))
+  ;({ abs, min, max, pow, floor, log10 } = Math)
   dpr = devicePixelRatio
   lc = x => x.toLowerCase()
+  todate = x => new Date(x).toISOString().replace(/T.*/, ``)
+  tomonth = x => new Date(x).toLocaleString(`default`, { month: `long` })
+  wget = async x => (await fetch(x)).json()
 
+  API = `https://api.coinpaprika.com/v1`
+  start = todate(new Date(new Date().setUTCMonth(-6, 1)).setUTCHours(0, 0, 0))
   symbol = location.search.substring(1) || `btc`
 
-  fetch(`${API}/coins`).then(async x => {
-    coins = await x.json()
-    coin = coins.filter(
-      y => lc(y.symbol) == lc(symbol)
-    ).sort((x, y) => y.rank - x.rank)[0].id
-    json = await (await fetch(
-      `${API}/coins/${coin}/ohlcv/historical?start=${start}&limit=366`
-    )).json()
+  Promise.resolve().then(async () => {
+    if (location.search || location.hostname != `localhost`) {
+      coin = (await wget(`${API}/coins`)).filter(
+        y => lc(y.symbol) == lc(symbol)
+      ).sort((x, y) => y.rank - x.rank)[0].id
+      url = `${API}/coins/${coin}/ohlcv/historical?start=${start}&limit=366`
+    } else {
+      url = `bitcoin.json`
+    }
+
+    json = await wget(url)
     draw()
     onresize = draw
   })
@@ -45,12 +50,12 @@
     context.fillStyle = `black`
     context.fillRect(0, 0, gw, gh)
 
-    max = Math.max(...json.map(x => x.high))
+    high = max(...json.map(x => x.high))
 
-    let tick = Math.pow(10, Math.floor(Math.log10(max / 4.5)))
+    let tick = pow(10, floor(log10(high / 4.5)))
 
-    for (let y = 0; y < max; y += tick) {
-      let ly = gh * (1 - y / max)
+    for (let y = 0; y < high; y += tick) {
+      let ly = gh * (1 - y / high)
       context.save()
       context.strokeStyle = `#333`
       context.fillStyle = `#666`
@@ -63,17 +68,17 @@
       context.restore()
     }
 
-    whole = Math.floor(gw / json.length)
-    w = Math.floor(whole * 0.3) * 2 + 1
+    whole = floor(gw / json.length)
+    w = floor(whole * 0.3) * 2 + 1
     wp = whole - w
 
     for (let i = 0; i < json.length; i++) {
       let d = json[i].close - json[i].open
       let x = whole * i + wp
-      let y = gh * (1 - Math.min(json[i].open, json[i].close) / max)
-      let y_ = gh * (1 - json[i].low / max)
-      let h_ = -gh * (json[i].high - json[i].low) / max
-      let h = -gh * Math.abs(d) / max
+      let y = gh * (1 - min(json[i].open, json[i].close) / high)
+      let y_ = gh * (1 - json[i].low / high)
+      let h_ = -gh * (json[i].high - json[i].low) / high
+      let h = -gh * abs(d) / high
 
       if (json[i].time_open.replace(/.*(..)T.*/, `$1`) == `01`) {
         context.save()
@@ -81,7 +86,7 @@
         context.fillStyle = `#666`
         context.setLineDash([1, 5])
         let tx = whole * (i + 12)
-        let lx = x - Math.floor(wp / 2) - 0.5
+        let lx = x - floor(wp / 2) - 0.5
         if (i) context.strokeRect(lx, 0, 0, gh)
         context.font = `10px Menlo, monospace`
         context.fillText(tomonth(json[i].time_open), tx, 10)
