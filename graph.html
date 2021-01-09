@@ -92,22 +92,32 @@
     }
 
     for (let i = 0; i < data.length; i++) {
-      let { open, close, low, high, time_open } = data[i]
+      if (data[i].time_open.replace(/.*(..)T.*/, `$1`) == `01`) {
+        pen.strokeStyle = `#111`
+        pen.strokeRect(dw * i + 1 - .5, 0, 0, H)
+        pen.font = `10pt sans-serif`
+        pen.textAlign = `center`
+        pen.textBaseline = `top`
+        pen.fillStyle = `#333`
+        draw_text(tomonth(data[i].time_open), dw * (i + 15), 5)
+      }
+    }
+
+    for (let a = tick; a < Ω; a += tick) {
+      pen.fillStyle = `#333`
+      pen.textBaseline = `middle`
+      pen.textAlign = `center`
+      pen.font = `10pt sans-serif`
+      draw_text(tousd(a), 30, H * (1 - a / Ω))
+    }
+
+    for (let i = 0; i < data.length; i++) {
+      let { open, close, low, high } = data[i]
       let bx = dw * i + dw - bw                 // box x
       let by = H * (1 - min(open, close) / Ω)   // box y
       let bh = H * abs(close - open) / Ω        // box height
       let ly = H * (1 - low / Ω)                // line y
       let lh = H * (high - low) / Ω             // line height
-
-      if (time_open.replace(/.*(..)T.*/, `$1`) == `01`) {
-        pen.strokeStyle = `#111`
-        pen.strokeRect(bx - floor((dw - bw) / 2) - .5, 0, 0, H)
-        pen.font = `10pt sans-serif`
-        pen.textAlign = `center`
-        pen.textBaseline = `top`
-        pen.fillStyle = `#333`
-        draw_text(tomonth(time_open), dw * (i + 15), 5)
-      }
 
       if (close >= open) {
         pen.strokeStyle = `#8f8`
@@ -129,14 +139,6 @@
         let text = tolongusd(close >= 1000 ? round(close) : close)
         draw_text(text, (i + 1) * dw + 5, H * (1 - close / Ω))
       }
-    }
-
-    for (let a = tick; a < Ω; a += tick) {
-      pen.fillStyle = `#333`
-      pen.textBaseline = `middle`
-      pen.textAlign = `center`
-      pen.font = `10pt sans-serif`
-      draw_text(tousd(a), 30, H * (1 - a / Ω))
     }
   }
 
