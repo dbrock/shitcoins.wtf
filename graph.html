@@ -24,6 +24,7 @@
   todate = x => new Date(x).toISOString().replace(/T.*/, ``)
   tomonth = x => tostr(new Date(x), { month: `long` })
   tousd = x => `$${fixunits(tostr(+x, { notation: `compact` }))}`
+  tolongusd = x => `$${tostr(+x).replace(/(\...).*/, `$1`)}`
   fixunits = x => replace(x, [[`K`, `k`], [`M`, `mm`]])
 
   dpr = devicePixelRatio
@@ -86,16 +87,8 @@
     tick = pow(10, floor(log10(Ω / 4)))
 
     for (let a = tick; a < Ω; a += tick) {
-      let y = H * (1 - a / Ω)
-      pen.save()
       pen.strokeStyle = `#111`
-      pen.fillStyle = `#333`
-      pen.textBaseline = `middle`
-      pen.textAlign = `center`
-      pen.strokeRect(0, y, W, 0)
-      pen.font = `10pt sans-serif`
-      draw_text(tousd(a), 30, y)
-      pen.restore()
+      pen.strokeRect(0, H * (1 - a / Ω), W, 0)
     }
 
     for (let i = 0; i < data.length; i++) {
@@ -107,15 +100,13 @@
       let lh = H * (high - low) / Ω             // line height
 
       if (time_open.replace(/.*(..)T.*/, `$1`) == `01`) {
-        pen.save()
         pen.strokeStyle = `#111`
-        pen.fillStyle = `#333`
         pen.strokeRect(bx - floor((dw - bw) / 2) - .5, 0, 0, H)
         pen.font = `10pt sans-serif`
         pen.textAlign = `center`
         pen.textBaseline = `top`
+        pen.fillStyle = `#333`
         draw_text(tomonth(time_open), dw * (i + 15), 5)
-        pen.restore()
       }
 
       if (close >= open) {
@@ -131,24 +122,30 @@
       pen.strokeRect(bx + .5, by - .5, bw - 1, -(bh - 1))
 
       if (i == data.length - 1) {
-        let y = H * (1 - close / Ω)
-        pen.save()
-        pen.fillStyle = close >= open ? `#8f8` : `red`
         pen.textBaseline = `middle`
         pen.textAlign = `left`
         pen.font = `10pt sans-serif`
-        draw_text(`$${(
-          close >= 1000 ? round(close) : close
-        ).toLocaleString().replace(/(\...).*/, `$1`)}`, (i + 1) * dw + 5, y)
-        pen.restore()
+        pen.fillStyle = close >= open ? `#8f8` : `red`
+        let text = tolongusd(close >= 1000 ? round(close) : close)
+        draw_text(text, (i + 1) * dw + 5, H * (1 - close / Ω))
       }
+    }
+
+    for (let a = tick; a < Ω; a += tick) {
+      pen.fillStyle = `#333`
+      pen.textBaseline = `middle`
+      pen.textAlign = `center`
+      pen.font = `10pt sans-serif`
+      draw_text(tousd(a), 30, H * (1 - a / Ω))
     }
   }
 
   draw_text = (text, x, y) => {
+    pen.save()
     pen.strokeStyle = `#000`
     pen.lineWidth = 4
     pen.strokeText(text, x, y)
     pen.fillText(text, x, y)
+    pen.restore()
   }
 </script>
