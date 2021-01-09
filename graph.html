@@ -1,6 +1,7 @@
 <!doctype html>
 <meta charset=utf-8>
 <meta name=viewport content=width=device-width>
+<link rel=icon href=graph.png>
 <canvas width=0 height=0 id=graph></canvas>
 <div id=loading>Loading...</div>
 <style>
@@ -8,12 +9,12 @@
   html, body { height: 100% }
   html { background: black; font-size: 16px; line-height: 20px }
   body { display: flex; align-items: center; justify-content: center }
-  #loading { font: 16pt Menlo, monospace; color: gray; padding: 1ch 1em }
+  #loading { font: 10pt sans-serif; color: #666; padding: 1ch 1em }
 </style>
 <script>
   ;({ abs, min, max, pow, floor, log10 } = Math)
-  dpr = devicePixelRatio
-  lc = x => x.toLowerCase()
+  dpr = devicePixelRatio, db = localStorage
+  lc = x => x.toLowerCase(), uc = x => x.toUpperCase()
   todate = x => new Date(x).toISOString().replace(/T.*/, ``)
   tomonth = x => new Date(x).toLocaleString(`default`, { month: `long` })
   wget = async x => (await fetch(x)).json()
@@ -23,7 +24,8 @@
   start = todate(new Date(new Date().setUTCMonth(-6, 1)).setUTCHours(0, 0, 0))
   symbol = location.search.substring(1) || `btc`
   pen = graph.getContext(`2d`)
-  db = localStorage
+
+  document.title = `${uc(symbol)}USD`
 
   Promise.resolve().then(async () => {
     if (location.search || location.hostname != `localhost`) {
@@ -77,7 +79,7 @@
       pen.fillStyle = `#666`
       pen.setLineDash([1, 5])
       pen.strokeRect(0, y, W, 0)
-      pen.font = `10px Menlo, monospace`
+      pen.font = `10px sans-serif`
       pen.fillText(`$${a.toLocaleString(
         `default`, { notation: `compact` }
       ).replace(`K`, `k`)}`, 5, y - 5)
