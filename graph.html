@@ -16,7 +16,7 @@
   #loading { font: 10pt sans-serif; color: #666; padding: 1ch 1em }
 </style>
 <script>
-  ;({ abs, min, max, pow, floor, log10 } = Math)
+  ;({ abs, min, max, pow, round, floor, log10 } = Math)
   lc = x => x.toLowerCase(), uc = x => x.toUpperCase()
   replace = (x, ys) => ys.reduce((a, y) => a.replace(...y), x)
   wget = async x => (await fetch(x)).json()
@@ -38,20 +38,21 @@
 
   document.title = `${uc(symbol)}USD`
 
+  get_cg_id = async () => (await Promise.all(
+    (await wget(`${CG_API}/coins/list`))
+      .filter(y => lc(y.symbol) == lc(symbol))
+      .map(x => wget(`${CG_API}/coins/${x.id}?market_data=true`))
+  )).sort((x, y) => y.market_cap_rank - x.market_cap_rank)[0].id
+
+  get_cp_id = async () => (await wget(`${CP_API}/coins`))
+    .find(y => lc(y.symbol) == lc(symbol)).id
+
   Promise.resolve().then(async () => {
     if (location.search || location.hostname != `localhost`) {
-      cp_id = db[`cp_id_${symbol}`] = db[`cp_id_${symbol}`] || (
-        await wget(`${CP_API}/coins`)
-      ).filter(
-        y => lc(y.symbol) == lc(symbol)
-      ).sort((x, y) => y.rank - x.rank)[0].id
+      cp_id = db[`cp_id_${symbol}`] = db[`cp_id_${symbol}`] || await get_cp_id()
       cp_url = `${CP_API}/coins/${cp_id}/ohlcv/historical`
         + `?start=${start}&limit=366`
-      cg_id = db[`cg_id_${symbol}`] = db[`cg_id_${symbol}`] || (
-        await wget(`${CG_API}/coins/list`)
-      ).filter(
-        y => lc(y.symbol) == lc(symbol)
-      ).sort((x, y) => y.rank - x.rank)[0].id
+      cg_id = db[`cg_id_${symbol}`] = db[`cg_id_${symbol}`] || await get_cg_id()
       cg_url = `${CG_API}/coins/${cg_id}?market_data=true`
     } else {
       cp_url = `bitcoin.json`
@@ -76,11 +77,13 @@
     pen.fillStyle = `black`
     pen.fillRect(0, 0, W, H)
 
-    data = cp_data.slice(-floor(W / 4))
-    dw = floor(W / data.length)                 // day width
+    aw = W - 50
+    data = cp_data.slice(-floor(aw / 4))
+    dw = floor(aw / data.length)                // day width
     bw = floor(dw / 3) * 2 + 1                  // box width
 
-    Ω = min(cg_data.market_data.ath.usd, max(...data.map(x => x.high)) * 5)
+    Ω = max(...data.map(x => x.high))
+    Ω = min(max(cg_data.market_data.ath.usd, Ω), Ω * 5)
     tick = pow(10, floor(log10(Ω / 4.5)))
 
     for (let a = tick; a < Ω; a += tick) {
@@ -128,6 +131,19 @@
       pen.strokeRect(bx + bw / 2, ly, 0, -lh)
       pen.fillRect(bx, by, bw, -bh)
       pen.strokeRect(bx + .5, by - .5, bw - 1, -(bh - 1))
+
+      if (i == data.length - 1) {
+        let y = H * (1 - close / Ω)
+        pen.save()
+        pen.fillStyle = close >= open ? `#8f8` : `red`
+        pen.textBaseline = `middle`
+        pen.textAlign = `left`
+        pen.font = `10px sans-serif`
+        pen.fillText(`$${(
+          close >= 1000 ? round(close) : close
+        ).toLocaleString().replace(/(\...).*/, `$1`)}`, (i + 1) * dw + 5, y)
+        pen.restore()
+      }
     }
   }
 </script>
