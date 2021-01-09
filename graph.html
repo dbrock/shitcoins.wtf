@@ -17,11 +17,18 @@
 </style>
 <script>
   ;({ abs, min, max, pow, floor, log10 } = Math)
-  dpr = devicePixelRatio, db = localStorage
   lc = x => x.toLowerCase(), uc = x => x.toUpperCase()
-  todate = x => new Date(x).toISOString().replace(/T.*/, ``)
-  tomonth = x => new Date(x).toLocaleString(`default`, { month: `long` })
+  replace = (x, ys) => ys.reduce((a, y) => a.replace(...y), x)
   wget = async x => (await fetch(x)).json()
+
+  tostr = (x, y) => x.toLocaleString(`default`, y)
+  todate = x => new Date(x).toISOString().replace(/T.*/, ``)
+  tomonth = x => tostr(new Date(x), { month: `long` })
+  tousd = x => `$${fixunits(tostr(+x, { notation: `compact` }))}`
+  fixunits = x => replace(x, [[`K`, `k`], [`M`, `mm`]])
+
+  dpr = devicePixelRatio
+  db = localStorage
 
   CP_API = `https://api.coinpaprika.com/v1`
   CG_API = `https://api.coingecko.com/api/v3`
@@ -76,16 +83,17 @@
     Ω = min(cg_data.market_data.ath.usd, max(...data.map(x => x.high)) * 5)
     tick = pow(10, floor(log10(Ω / 4.5)))
 
-    for (let a = 0; a < Ω; a += tick) {
+    for (let a = tick; a < Ω; a += tick) {
       let y = H * (1 - a / Ω)
       pen.save()
-      pen.strokeStyle = `#222`
-      pen.fillStyle = `#666`
-      pen.strokeRect(0, y, W, 0)
+      pen.strokeStyle = `#111`
+      pen.fillStyle = `#444`
+      pen.textBaseline = `middle`
+      pen.textAlign = `center`
+      let w = 40
+      pen.strokeRect(w, y, W - w, 0)
       pen.font = `10px sans-serif`
-      pen.fillText(`$${a.toLocaleString(
-        `default`, { notation: `compact` }
-      ).replace(`K`, `k`)}`, 5, y - 5)
+      pen.fillText(tousd(a), w / 2, y)
       pen.restore()
     }
 
@@ -99,12 +107,13 @@
 
       if (time_open.replace(/.*(..)T.*/, `$1`) == `01`) {
         pen.save()
-        pen.strokeStyle = `#222`
-        pen.fillStyle = `#666`
+        pen.strokeStyle = `#111`
+        pen.fillStyle = `#444`
         pen.strokeRect(bx - floor((dw - bw) / 2) - .5, 0, 0, H)
         pen.font = `10px Menlo, monospace`
         pen.textAlign = `center`
-        pen.fillText(tomonth(time_open), dw * (i + 15), 10)
+        pen.textBaseline = `top`
+        pen.fillText(tomonth(time_open), dw * (i + 15), 5)
         pen.restore()
       }
 
