@@ -10,8 +10,7 @@
 <div id=loading>Loading...</div>
 <style>
   * { margin: 0 }
-  html, body { height: 100% }
-  html { background: black; font-size: 16px; line-height: 20px }
+  html, body { height: 100%; background: black }
   body { display: flex; align-items: center; justify-content: center }
   #loading { font: 10pt sans-serif; color: #666; padding: 1ch 1em }
 </style>
@@ -94,7 +93,7 @@
       pen.textBaseline = `middle`
       pen.textAlign = `center`
       pen.strokeRect(0, y, W, 0)
-      pen.font = `16px sans-serif`
+      pen.font = `10pt sans-serif`
       draw_text(tousd(a), 30, y)
       pen.restore()
     }
@@ -112,7 +111,7 @@
         pen.strokeStyle = `#111`
         pen.fillStyle = `#333`
         pen.strokeRect(bx - floor((dw - bw) / 2) - .5, 0, 0, H)
-        pen.font = `16px sans-serif`
+        pen.font = `10pt sans-serif`
         pen.textAlign = `center`
         pen.textBaseline = `top`
         draw_text(tomonth(time_open), dw * (i + 15), 5)
@@ -137,7 +136,7 @@
         pen.fillStyle = close >= open ? `#8f8` : `red`
         pen.textBaseline = `middle`
         pen.textAlign = `left`
-        pen.font = `12px sans-serif`
+        pen.font = `10pt sans-serif`
         draw_text(`$${(
           close >= 1000 ? round(close) : close
         ).toLocaleString().replace(/(\...).*/, `$1`)}`, (i + 1) * dw + 5, y)
