@@ -1,12 +1,14 @@
 <!doctype html>
 <meta charset=utf-8>
 <meta name=viewport content=width=device-width>
-<canvas id=graph></canvas>
+<canvas width=0 height=0 id=graph></canvas>
+<div id=loading>Loading...</div>
 <style>
   * { margin: 0 }
   html, body { height: 100% }
   html { background: black; font-size: 16px; line-height: 20px }
   body { display: flex; align-items: center; justify-content: center }
+  #loading { font: 16pt Menlo, monospace; color: gray; padding: 1ch 1em }
 </style>
 <script>
   ;({ abs, min, max, pow, floor, log10 } = Math)
@@ -43,6 +45,7 @@
     }
 
     ;[cg_data, cp_data] = await Promise.all([wget(cg_url), wget(cp_url)])
+    loading.remove()
     draw()
     onresize = draw
   })
