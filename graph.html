@@ -16,27 +16,33 @@
   tomonth = x => new Date(x).toLocaleString(`default`, { month: `long` })
   wget = async x => (await fetch(x)).json()
 
-  CPAPI = `https://api.coinpaprika.com/v1`
-  CGAPI = `https://api.coingecko.com/api/v3`
+  CP_API = `https://api.coinpaprika.com/v1`
+  CG_API = `https://api.coingecko.com/api/v3`
   start = todate(new Date(new Date().setUTCMonth(-6, 1)).setUTCHours(0, 0, 0))
   symbol = location.search.substring(1) || `btc`
   pen = graph.getContext(`2d`)
+  db = localStorage
 
   Promise.resolve().then(async () => {
     if (location.search || location.hostname != `localhost`) {
-      coin = (await wget(`${CPAPI}/coins`))
-        .filter(y => lc(y.symbol) == lc(symbol))
-        .sort((x, y) => y.rank - x.rank)[0].id
-      url = `${CPAPI}/coins/${coin}/ohlcv/historical?start=${start}&limit=366`
-      cgcoin = (await wget(`${CGAPI}/coins/list`))
-        .filter(y => lc(y.symbol) == lc(symbol))
-        .sort((x, y) => y.rank - x.rank)[0].id
-      cgcoindata = await wget(`${CGAPI}/coins/${cgcoin}?market_data=true`)
+      cp_id = db[`cp_id_${symbol}`] = db[`cp_id_${symbol}`] || (
+        await wget(`${CP_API}/coins`)
+      ).filter(
+        y => lc(y.symbol) == lc(symbol)
+      ).sort((x, y) => y.rank - x.rank)[0].id
+      cp_url = `${CP_API}/coins/${cp_id}/ohlcv/historical`
+        + `?start=${start}&limit=366`
+      cg_id = db[`cg_id_${symbol}`] = db[`cg_id_${symbol}`] || (
+        await wget(`${CG_API}/coins/list`)
+      ).filter(
+        y => lc(y.symbol) == lc(symbol)
+      ).sort((x, y) => y.rank - x.rank)[0].id
+      cg_url = `${CG_API}/coins/${cg_id}?market_data=true`
     } else {
-      url = `bitcoin.json`
+      cp_url = `bitcoin.json`
     }
 
-    all_data = await wget(url)
+    ;[cg_data, cp_data] = await Promise.all([wget(cg_url), wget(cp_url)])
     draw()
     onresize = draw
   })
@@ -54,11 +60,11 @@
     pen.fillStyle = `black`
     pen.fillRect(0, 0, W, H)
 
-    data = all_data.slice(-floor(W / 4))
+    data = cp_data.slice(-floor(W / 4))
     dw = floor(W / data.length)                 // day width
     bw = floor(dw / 3) * 2 + 1                  // box width
 
-    Ω = min(cgcoindata.market_data.ath.usd, max(...data.map(x => x.high)) * 5)
+    Ω = min(cg_data.market_data.ath.usd, max(...data.map(x => x.high)) * 5)
     tick = pow(10, floor(log10(Ω / 4.5)))
 
     for (let a = 0; a < Ω; a += tick) {
