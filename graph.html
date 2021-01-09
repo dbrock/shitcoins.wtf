@@ -84,19 +84,18 @@
 
     Ω = max(...data.map(x => x.high))
     Ω = min(max(cg_data.market_data.ath.usd, Ω), Ω * 5)
-    tick = pow(10, floor(log10(Ω / 4.5)))
+    tick = pow(10, floor(log10(Ω / 4)))
 
     for (let a = tick; a < Ω; a += tick) {
       let y = H * (1 - a / Ω)
       pen.save()
       pen.strokeStyle = `#111`
-      pen.fillStyle = `#444`
+      pen.fillStyle = `#333`
       pen.textBaseline = `middle`
       pen.textAlign = `center`
-      let w = 40
-      pen.strokeRect(w, y, W - w, 0)
-      pen.font = `10px sans-serif`
-      pen.fillText(tousd(a), w / 2, y)
+      pen.strokeRect(0, y, W, 0)
+      pen.font = `16px sans-serif`
+      draw_text(tousd(a), 30, y)
       pen.restore()
     }
 
@@ -111,12 +110,12 @@
       if (time_open.replace(/.*(..)T.*/, `$1`) == `01`) {
         pen.save()
         pen.strokeStyle = `#111`
-        pen.fillStyle = `#444`
+        pen.fillStyle = `#333`
         pen.strokeRect(bx - floor((dw - bw) / 2) - .5, 0, 0, H)
-        pen.font = `10px Menlo, monospace`
+        pen.font = `16px sans-serif`
         pen.textAlign = `center`
         pen.textBaseline = `top`
-        pen.fillText(tomonth(time_open), dw * (i + 15), 5)
+        draw_text(tomonth(time_open), dw * (i + 15), 5)
         pen.restore()
       }
 
@@ -138,12 +137,19 @@
         pen.fillStyle = close >= open ? `#8f8` : `red`
         pen.textBaseline = `middle`
         pen.textAlign = `left`
-        pen.font = `10px sans-serif`
-        pen.fillText(`$${(
+        pen.font = `12px sans-serif`
+        draw_text(`$${(
           close >= 1000 ? round(close) : close
         ).toLocaleString().replace(/(\...).*/, `$1`)}`, (i + 1) * dw + 5, y)
         pen.restore()
       }
     }
+  }
+
+  draw_text = (text, x, y) => {
+    pen.strokeStyle = `#000`
+    pen.lineWidth = 4
+    pen.strokeText(text, x, y)
+    pen.fillText(text, x, y)
   }
 </script>
