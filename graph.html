@@ -118,7 +118,7 @@
 
       pen.strokeRect(bx + bw / 2, ly, 0, -lh)
       pen.fillRect(bx, by, bw, -bh)
-      pen.strokeRect(bx - .5, by - .5, bw, -bh)
+      pen.strokeRect(bx + .5, by - .5, bw - 1, -(bh - 1))
     }
   }
 </script>
