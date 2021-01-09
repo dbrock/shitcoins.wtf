@@ -36,7 +36,7 @@
       url = `bitcoin.json`
     }
 
-    data = await wget(url)
+    all_data = await wget(url)
     draw()
     onresize = draw
   })
@@ -52,8 +52,11 @@
     pen.fillStyle = `black`
     pen.fillRect(0, 0, W, H)
 
-    Ω = max(...data.map(x => x.high))
-    Ω = min(cgcoindata.market_data.ath.usd, Ω * 5)
+    data = all_data.slice(-floor(W / 4))
+    dw = floor(W / data.length)                 // day width
+    bw = floor(dw / 3) * 2 + 1                  // box width
+
+    Ω = min(cgcoindata.market_data.ath.usd, max(...data.map(x => x.high)) * 5)
     tick = pow(10, floor(log10(Ω / 4.5)))
 
     for (let a = 0; a < Ω; a += tick) {
@@ -69,9 +72,6 @@
       ).replace(`K`, `k`)}`, 5, y - 5)
       pen.restore()
     }
-
-    dw = floor(W / data.length)                 // day width
-    bw = floor(dw / 3) * 2 + 1                  // box width
 
     for (let i = 0; i < data.length; i++) {
       let { open, close, low, high, time_open } = data[i]
