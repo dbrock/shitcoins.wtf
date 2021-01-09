@@ -77,7 +77,6 @@
       pen.save()
       pen.strokeStyle = `#333`
       pen.fillStyle = `#666`
-      pen.setLineDash([1, 5])
       pen.strokeRect(0, y, W, 0)
       pen.font = `10px sans-serif`
       pen.fillText(`$${a.toLocaleString(
@@ -98,10 +97,10 @@
         pen.save()
         pen.strokeStyle = `#333`
         pen.fillStyle = `#666`
-        pen.setLineDash([1, 5])
         pen.strokeRect(bx - floor((dw - bw) / 2) - .5, 0, 0, H)
         pen.font = `10px Menlo, monospace`
-        pen.fillText(tomonth(time_open), dw * (i + 12), 10)
+        pen.textAlign = `center`
+        pen.fillText(tomonth(time_open), dw * (i + 15), 10)
         pen.restore()
       }
 
