@@ -79,7 +79,7 @@
     for (let a = 0; a < Ω; a += tick) {
       let y = H * (1 - a / Ω)
       pen.save()
-      pen.strokeStyle = `#333`
+      pen.strokeStyle = `#222`
       pen.fillStyle = `#666`
       pen.strokeRect(0, y, W, 0)
       pen.font = `10px sans-serif`
@@ -99,7 +99,7 @@
 
       if (time_open.replace(/.*(..)T.*/, `$1`) == `01`) {
         pen.save()
-        pen.strokeStyle = `#333`
+        pen.strokeStyle = `#222`
         pen.fillStyle = `#666`
         pen.strokeRect(bx - floor((dw - bw) / 2) - .5, 0, 0, H)
         pen.font = `10px Menlo, monospace`
