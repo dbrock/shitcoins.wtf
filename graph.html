@@ -15,7 +15,8 @@
   #loading { font: 10pt sans-serif; color: #666; padding: 1ch 1em }
 </style>
 <script>
-  ;({ abs, min, max, pow, round, floor, log10 } = Math)
+  ;({ keys } = Object)
+  ;({ abs, min, max, pow, round, floor, ceil, log10 } = Math)
   lc = x => x.toLowerCase(), uc = x => x.toUpperCase()
   replace = (x, ys) => ys.reduce((a, y) => a.replace(...y), x)
   wget = async x => (await fetch(x)).json()
@@ -23,9 +24,9 @@
   tostr = (x, y) => x.toLocaleString(`default`, y)
   todate = x => new Date(x).toISOString().replace(/T.*/, ``)
   tomonth = x => tostr(new Date(x), { month: `long` })
-  tousd = x => `$${fixunits(tostr(+x, { notation: `compact` }))}`
+  toquote = x => `${quoteglyph}${fixunits(tostr(+x, { notation: `compact` }))}`
   longopts = { minimumSignificantDigits: 4, maximumSignificantDigits: 4 }
-  tolongusd = x => `$${tostr(x, longopts)}`
+  tolongquote = x => `${quoteglyph}${tostr(x, longopts)}`
   fixunits = x => replace(x, [[`K`, `k`], [`M`, `mm`]])
   dpr = devicePixelRatio
   db = localStorage
@@ -33,32 +34,64 @@
   CP_API = `https://api.coinpaprika.com/v1`
   CG_API = `https://api.coingecko.com/api/v3`
   start = todate(new Date(new Date().setUTCMonth(-6, 1)).setUTCHours(0, 0, 0))
-  symbol = location.search.substring(1) || `btc`
+  query = lc(location.search.substring(1) || `btcusd`)
   pen = graph.getContext(`2d`)
 
-  document.title = `${uc(symbol)}USD`
+  symbols = query.split(`_`).slice(0, 2)
 
-  get_cg_id = async () => (await Promise.all(
-    (await wget(`${CG_API}/coins/list`))
-      .filter(y => lc(y.symbol) == lc(symbol))
-      .map(x => wget(`${CG_API}/coins/${x.id}?market_data=true`))
-  )).sort((x, y) => y.market_cap_rank - x.market_cap_rank)[0].id
+  if (symbols.length == 1) {
+    symbols = [
+      query.slice(0, ceil(query.length / 2)),
+      query.slice(ceil(query.length / 2)),
+    ]
+  }
 
-  get_cp_id = async () => (await wget(`${CP_API}/coins`))
-    .find(y => lc(y.symbol) == lc(symbol)).id
+  glyphs = { usd: `$`, btc: "₿", eth: "Ξ" }
+  quoteglyph = glyphs[symbols[1]] || `${uc(symbols[1])} `
+
+  document.title = uc(query)
+
+  get_cp_id = async symbol => db[`cp_id_${symbol}`] || (
+    await wget(`${CP_API}/coins`)
+  ).find(y => lc(y.symbol) == lc(symbol)).id
+
+  get_cg_id = async symbol => db[`cg_id_${symbol}`] || (
+    await Promise.all((await wget(`${CG_API}/coins/list`)).filter(
+      y => lc(y.symbol) == lc(symbol)
+    ).map(x => wget(`${CG_API}/coins/${x.id}?market_data=true`)))
+  ).sort((x, y) => y.market_cap_rank - x.market_cap_rank)[0].id
+
+  cp_data_url = async x => `${CP_API}/coins/${
+    db[`cp_id_${x}`] = await get_cp_id(x)
+  }/ohlcv/historical?start=${start}&limit=366`
+
+  cg_data_url = async x => `${CG_API}/coins/${
+    db[`cg_id_${x}`] = await get_cg_id(x)
+  }?market_data=true`
 
   Promise.resolve().then(async () => {
-    if (location.search || location.hostname != `localhost`) {
-      cp_id = db[`cp_id_${symbol}`] = db[`cp_id_${symbol}`] || await get_cp_id()
-      cp_url = `${CP_API}/coins/${cp_id}/ohlcv/historical`
-        + `?start=${start}&limit=366`
-      cg_id = db[`cg_id_${symbol}`] = db[`cg_id_${symbol}`] || await get_cg_id()
-      cg_url = `${CG_API}/coins/${cg_id}?market_data=true`
-    } else {
-      cp_url = `bitcoin.json`
+    ;[cp_data, cp_quote_data, cg_data] = await Promise.all([
+      wget(await cp_data_url(symbols[0], start)),
+      symbols[1] == `usd` ? null : wget(await cp_data_url(symbols[1])),
+      wget(await cg_data_url(symbols[0])),
+    ])
+
+    if (cp_quote_data) for (let i = 0; i < cp_data.length; i++) {
+      for (let k in cp_data[i]) if (typeof cp_data[i][k] == `number`) {
+        cp_data[i][k] = cp_data[i][k] / cp_quote_data[i][k]
+      }
     }
 
-    ;[cg_data, cp_data] = await Promise.all([wget(cg_url), wget(cp_url)])
+    ath = cg_data.market_data.ath.usd
+
+    if (cp_quote_data) {
+      ath = ath / (await wget(`${CP_API}/coins/${
+        db[`cp_id_${symbols[1]}`] = await get_cp_id(symbols[1])
+      }/ohlcv/historical?start=${
+        cg_data.market_data.ath_date.usd
+      }&limit=1`))[0].close
+    }
+
     loading.remove()
     draw()
     onresize = draw
@@ -100,7 +133,7 @@
     bw = floor(dw / 3) * 2 + 1                  // box width
 
     Ω = max(...data.map(x => x.high))
-    Ω = min(max(cg_data.market_data.ath.usd, Ω), Ω * 5)
+    Ω = min(max(ath, Ω), Ω * 5)
     tick = pow(10, floor(log10(Ω / 4)))
 
     for (let a = tick; a < Ω; a += tick) {
@@ -125,11 +158,12 @@
       pen.textBaseline = `middle`
       pen.textAlign = `center`
       pen.font = `10pt sans-serif`
-      draw_text(tousd(a), 30, H * (1 - a / Ω))
+      draw_text(toquote(a), 30, H * (1 - a / Ω))
     }
 
     for (let i = 0; i < data.length; i++) {
       let { open, close, low, high } = data[i]
+
       let bx = dw * i + dw - bw                 // box x
       let by = H * (1 - min(open, close) / Ω)   // box y
       let bh = H * abs(close - open) / Ω        // box height
@@ -156,7 +190,7 @@
         pen.textAlign = `left`
         pen.font = `10pt sans-serif`
         pen.fillStyle = `white`
-        draw_text(tolongusd(close), (i + 1) * dw + 5, H * (1 - close / Ω))
+        draw_text(tolongquote(close), (i + 1) * dw + 5, H * (1 - close / Ω))
       }
     }
 
@@ -176,7 +210,7 @@
       pen.textAlign = `left`
       pen.textBaseline = `middle`
       pen.fillStyle = `white`
-      draw_text(tolongusd(close), x + bw / 2 + 5, y)
+      draw_text(tolongquote(close), x + bw / 2 + 5, y)
     }
   }
 
