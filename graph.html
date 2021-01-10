@@ -76,22 +76,27 @@
       wget(await cg_data_url(symbols[0])),
     ])
 
-    if (cp_quote_data) for (let i = 0; i < cp_data.length; i++) {
-      let { open, close } = cp_quote_data[i]
-      cp_data[i].open = cp_data[i].open / open
-      cp_data[i].close = cp_data[i].close / close
-      cp_data[i].low = cp_data[i].low / min(open, close)
-      cp_data[i].high = cp_data[i].high / max(open, close)
-    }
-
     ath = cg_data.market_data.ath.usd
 
     if (cp_quote_data) {
-      ath = ath / (await wget(`${CP_API}/coins/${
+      cp_data = cp_data.slice(-cp_quote_data.length)
+      cp_quote_data = cp_quote_data.slice(-cp_data.length)
+
+      for (let i = 0; i < cp_data.length; i++) {
+        let { open, close } = cp_quote_data[i]
+        cp_data[i].open = cp_data[i].open / open
+        cp_data[i].close = cp_data[i].close / close
+        cp_data[i].low = cp_data[i].low / min(open, close)
+        cp_data[i].high = cp_data[i].high / max(open, close)
+      }
+
+      let entry = (await wget(`${CP_API}/coins/${
         db[`cp_id_${symbols[1]}`] = await get_cp_id(symbols[1])
       }/ohlcv/historical?start=${
         cg_data.market_data.ath_date.usd
-      }&limit=1`))[0].close
+      }&limit=1`))[0]
+
+      ath = entry ? ath / entry.close : 0
     }
 
     loading.remove()
