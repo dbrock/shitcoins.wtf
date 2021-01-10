@@ -179,7 +179,7 @@
     for (let i = 0, last = 0; i < data.length; i++) {
       let { time_open } = data[i]
       if (!days ? /-01T00:/.test(time_open) : (({
-        1: x => /T(00|04|08|12|16|20):00:/.test(x),
+        1: x => /T.[02468]:00:/.test(x),
         7: x => /T00:/.test(x),
         14: x => (data.length - i) % (1 * 6) == 1,
         30: x => (data.length - i) % (7 * 6) == 1,
