@@ -21,9 +21,13 @@
   replace = (x, ys) => ys.reduce((a, y) => a.replace(...y), x)
   wget = async x => (await fetch(x)).json()
 
-  tostr = (x, y) => x.toLocaleString(`default`, y)
+  tostr = (x, y) => x.toLocaleString(`en-US`, y)
   todate = x => new Date(x).toISOString().replace(/T.*/, ``)
   tomonth = x => tostr(new Date(x), { month: `long` })
+  toweekday = x => tostr(new Date(x), { weekday: `long` })
+  tonicedate = x => tostr(new Date(x), { month: `long`, day: `numeric` })
+  toshortdate = x => tostr(new Date(x), { month: `short`, day: `numeric` })
+  tofulldate = x => tostr(new Date(x), { month: `long`, day: `numeric`, year: `numeric` })
   toquote = x => `${quoteglyph}${fixunits(tostr(+x, { notation: `compact` }))}`
   longopts = { minimumSignificantDigits: 4, maximumSignificantDigits: 4 }
   tolongquote = x => `${quoteglyph}${tostr(x, longopts)}`
@@ -37,13 +41,13 @@
   query = lc(location.search.substring(1) || `btcusd`)
   pen = graph.getContext(`2d`)
 
-  symbols = query.split(`_`).slice(0, 2)
+  ;[symbols, days] = query.split(`,`)
+  symbols = symbols.split(`_`).slice(0, 2)
+  days = days && days.replace(/d$/, ``)
 
   if (symbols.length == 1) {
-    symbols = [
-      query.slice(0, ceil(query.length / 2)),
-      query.slice(ceil(query.length / 2)),
-    ]
+    let i = ceil(symbols[0].length / 2)
+    symbols = [symbols[0].slice(0, i), symbols[0].slice(i)]
   }
 
   glyphs = { usd: `$`, btc: "₿", eth: "Ξ" }
@@ -61,39 +65,63 @@
     ).map(x => wget(`${CG_API}/coins/${x.id}?market_data=true`)))
   ).sort((x, y) => y.market_cap_rank - x.market_cap_rank)[0].id
 
-  cp_data_url = async x => `${CP_API}/coins/${
+  cp_ohlc_data_url = async x => `${CP_API}/coins/${
     db[`cp_id_${x}`] = await get_cp_id(x)
   }/ohlcv/historical?start=${start}&limit=366`
 
-  cg_data_url = async x => `${CG_API}/coins/${
+  cg_ohlc_data_url = async x => `${CG_API}/coins/${
+    db[`cg_id_${x}`] = await get_cg_id(x)
+  }/ohlc?days=${days}&vs_currency=usd`
+
+  cg_coin_data_url = async x => `${CG_API}/coins/${
     db[`cg_id_${x}`] = await get_cg_id(x)
   }?market_data=true`
 
   Promise.resolve().then(async () => {
-    ;[cp_data, cp_quote_data, cg_data] = await Promise.all([
-      wget(await cp_data_url(symbols[0], start)),
-      symbols[1] == `usd` ? null : wget(await cp_data_url(symbols[1])),
-      wget(await cg_data_url(symbols[0])),
+    ;[
+      cp_ohlc_data,
+      cp_quote_ohlc_data,
+      cg_ohlc_data,
+      cg_quote_ohlc_data,
+      cg_coin_data,
+    ] = await Promise.all([
+      !days && wget(await cp_ohlc_data_url(symbols[0])),
+      symbols[1] != `usd` && !days && wget(await cp_ohlc_data_url(symbols[1])),
+      days && wget(await cg_ohlc_data_url(symbols[0])),
+      symbols[1] != `usd` && days && wget(await cg_ohlc_data_url(symbols[1])),
+      wget(await cg_coin_data_url(symbols[0])),
     ])
 
-    ath = cg_data.market_data.ath.usd
+    ath = cg_coin_data.market_data.ath.usd
 
-    if (cp_quote_data) {
-      cp_data = cp_data.slice(-cp_quote_data.length)
-      cp_quote_data = cp_quote_data.slice(-cp_data.length)
+    if (cp_ohlc_data) {
+      all_data = cp_ohlc_data
+      all_quote_data = cp_quote_ohlc_data
+    } else {
+      let convert = x => ({
+        time_open: new Date(x[0]).toISOString(),
+        open: x[1], high: x[2], low: x[3], close: x[4],
+      })
+      all_data = cg_ohlc_data.map(convert)
+      all_quote_data = cg_quote_ohlc_data && cg_quote_ohlc_data.map(convert)
+    }
 
-      for (let i = 0; i < cp_data.length; i++) {
-        let { open, close } = cp_quote_data[i]
-        cp_data[i].open = cp_data[i].open / open
-        cp_data[i].close = cp_data[i].close / close
-        cp_data[i].low = cp_data[i].low / min(open, close)
-        cp_data[i].high = cp_data[i].high / max(open, close)
+    if (all_quote_data) {
+      all_data = all_data.slice(-all_quote_data.length)
+      all_quote_data = all_quote_data.slice(-all_data.length)
+
+      for (let i = 0; i < all_data.length; i++) {
+        let { open, close } = all_quote_data[i]
+        all_data[i].open  = all_data[i].open / open
+        all_data[i].close = all_data[i].close / close
+        all_data[i].low   = all_data[i].low / min(open, close)
+        all_data[i].high  = all_data[i].high / max(open, close)
       }
 
       let entry = (await wget(`${CP_API}/coins/${
         db[`cp_id_${symbols[1]}`] = await get_cp_id(symbols[1])
       }/ohlcv/historical?start=${
-        cg_data.market_data.ath_date.usd
+        cg_coin_data.market_data.ath_date.usd
       }&limit=1`))[0]
 
       ath = entry ? ath / entry.close : 0
@@ -135,7 +163,7 @@
     pen.fillRect(0, 0, W, H)
 
     aw = W - 60
-    data = cp_data.slice(-floor(aw / 4))
+    data = all_data.slice(-floor(aw / 4))
     dw = floor(aw / data.length)                // day width
     bw = floor(dw / 3) * 2 + 1                  // box width
 
@@ -148,15 +176,30 @@
       pen.strokeRect(0, H * (1 - a / Ω), W, 0)
     }
 
-    for (let i = 0; i < data.length; i++) {
-      if (data[i].time_open.replace(/.*(..)T.*/, `$1`) == `01`) {
+    for (let i = 0, last = 0; i < data.length; i++) {
+      let { time_open } = data[i]
+      if (!days ? /-01T00:/.test(time_open) : (({
+        1: x => /T(00|04|08|12|16|20):00:/.test(x),
+        7: x => /T00:/.test(x),
+        14: x => (data.length - i) % (1 * 6) == 1,
+        30: x => (data.length - i) % (7 * 6) == 1,
+        180: x => (data.length - i) % 10 == 0,
+        365: x => (data.length - i) % 10 == 0,
+        max: x => (data.length - i) % floor(data.length / 6) == 0,
+      })[days] || (() => false))(data[i].time_open)) {
         pen.strokeStyle = `#111`
         pen.strokeRect(dw * i + 1 - .5, 0, 0, H)
         pen.font = `10pt sans-serif`
-        pen.textAlign = `center`
+        pen.textAlign = `left`
         pen.textBaseline = `top`
         pen.fillStyle = `#333`
-        draw_text(tomonth(data[i].time_open), dw * (i + 15), 5)
+        draw_text(!days ? tomonth(data[i].time_open) : (({
+          1: x => x.replace(/.*T(..:..).*/, `$1`),
+          7: x => toweekday(x),
+          14: x => toshortdate(x),
+          max: x => tofulldate(x),
+        })[days] || (x => tonicedate(x)))(data[i].time_open), dw * i + 5, 5)
+        last = i
       }
     }
 
