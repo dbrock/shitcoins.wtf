@@ -24,9 +24,8 @@
   todate = x => new Date(x).toISOString().replace(/T.*/, ``)
   tomonth = x => tostr(new Date(x), { month: `long` })
   tousd = x => `$${fixunits(tostr(+x, { notation: `compact` }))}`
-  tolongusd = x => `$${tostr(+x).replace(/(\...).*/, `$1`)}`
+  tolongusd = x => `$${tostr(x < 1e3 ? x : round(x)).replace(/(\...).*/, `$1`)}`
   fixunits = x => replace(x, [[`K`, `k`], [`M`, `mm`]])
-
   dpr = devicePixelRatio
   db = localStorage
 
@@ -64,6 +63,23 @@
     onresize = draw
   })
 
+  current = null
+
+  onclick = event => {
+    if (current === undefined) {
+      current = null
+    } else {
+      current = undefined, draw()
+    }
+  }
+
+  onmousemove = event => {
+    if (current === undefined) return
+    let next = floor(event.x / dw)
+    if (current == next) return
+    current = next, draw()
+  }
+
   draw = () => {
     graph.width = 0
     graph.height = 0
@@ -77,7 +93,7 @@
     pen.fillStyle = `black`
     pen.fillRect(0, 0, W, H)
 
-    aw = W - 50
+    aw = W - 60
     data = cp_data.slice(-floor(aw / 4))
     dw = floor(aw / data.length)                // day width
     bw = floor(dw / 3) * 2 + 1                  // box width
@@ -119,7 +135,10 @@
       let ly = H * (1 - low / Ω)                // line y
       let lh = H * (high - low) / Ω             // line height
 
-      if (close >= open) {
+      if (i == current) {
+        pen.strokeStyle = `white`
+        pen.fillStyle = `white`
+      } else if (close >= open) {
         pen.strokeStyle = `#8f8`
         pen.fillStyle = `black`
       } else {
@@ -135,17 +154,36 @@
         pen.textBaseline = `middle`
         pen.textAlign = `left`
         pen.font = `10pt sans-serif`
-        pen.fillStyle = close >= open ? `#8f8` : `red`
-        let text = tolongusd(close >= 1000 ? round(close) : close)
-        draw_text(text, (i + 1) * dw + 5, H * (1 - close / Ω))
+        pen.fillStyle = `white`
+        draw_text(tolongusd(close), (i + 1) * dw + 5, H * (1 - close / Ω))
       }
+    }
+
+    if (current in data) {
+      let { close, time_open } = data[current]
+      let x = dw * current + (dw - bw / 2)
+      let y = H * (1 - close / Ω)
+      pen.strokeStyle = `#fff1`
+      pen.strokeRect(x, 0, 0, H)
+      pen.font = `10pt sans-serif`
+      pen.textAlign = `center`
+      pen.textBaseline = `top`
+      pen.fillStyle = `white`
+      draw_text(new Date(time_open).toLocaleString(`default`, {
+        year: `numeric`, month: `long`, day: `numeric`,
+      }), x + bw / 2 + 5, 5)
+      pen.textAlign = `left`
+      pen.textBaseline = `middle`
+      pen.fillStyle = `white`
+      draw_text(tolongusd(close), x + bw / 2 + 5, y)
     }
   }
 
   draw_text = (text, x, y) => {
     pen.save()
     pen.strokeStyle = `#000`
-    pen.lineWidth = 4
+    pen.lineWidth = 8
+    pen.lineJoin = `round`
     pen.strokeText(text, x, y)
     pen.fillText(text, x, y)
     pen.restore()
