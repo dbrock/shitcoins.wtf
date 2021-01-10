@@ -24,7 +24,8 @@
   todate = x => new Date(x).toISOString().replace(/T.*/, ``)
   tomonth = x => tostr(new Date(x), { month: `long` })
   tousd = x => `$${fixunits(tostr(+x, { notation: `compact` }))}`
-  tolongusd = x => `$${tostr(x < 1e3 ? x : round(x)).replace(/(\...).*/, `$1`)}`
+  longopts = { minimumSignificantDigits: 4, maximumSignificantDigits: 4 }
+  tolongusd = x => `$${tostr(x, longopts)}`
   fixunits = x => replace(x, [[`K`, `k`], [`M`, `mm`]])
   dpr = devicePixelRatio
   db = localStorage
