@@ -77,9 +77,11 @@
     ])
 
     if (cp_quote_data) for (let i = 0; i < cp_data.length; i++) {
-      for (let k in cp_data[i]) if (typeof cp_data[i][k] == `number`) {
-        cp_data[i][k] = cp_data[i][k] / cp_quote_data[i][k]
-      }
+      let { open, close } = cp_quote_data[i]
+      cp_data[i].open = cp_data[i].open / open
+      cp_data[i].close = cp_data[i].close / close
+      cp_data[i].low = cp_data[i].low / min(open, close)
+      cp_data[i].high = cp_data[i].high / max(open, close)
     }
 
     ath = cg_data.market_data.ath.usd
